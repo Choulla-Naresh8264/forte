@@ -24,21 +24,21 @@ typedef enum {
 	CBCScheme_CPABE,
 	CBCScheme_KPABE,
 	CBCScheme_RSA,
-}
+} CBCSchemeType;
 
-typedef struct cbc_scheme {
+typedef struct cbc_encryption_scheme {
 	CBCParameters *(*Setup)(void);
 	CBCMasterKey *(*CreateMasterKey)(const CBCParameters *parameters);
 	CBCSecretKey *(*KeyGen)(const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-	CBCEncryptedPayload *(*Encrypt)(const CBCParameters, const CBCInput *input);
+	CBCEncryptedPayload *(*Encrypt)(const CBCParameters *params, const CBCInput *input);
 	CBCOutput *(*Decrypt)(const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
 } CBCEncryptionScheme;
 
-typedef struct cbc_scheme {
+typedef struct cbc_signature_scheme {
 	CBCParameters *(*Setup)(void);
 	CBCMasterKey *(*CreateMasterKey)(const CBCParameters *parameters);
 	CBCSecretKey *(*KeyGen)(const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-	CBCEncryptedPayload *(*Sign)(const CBCParameters, const CBCInput *input);
+	CBCEncryptedPayload *(*Sign)(const CBCParameters *params, const CBCInput *input);
 	CBCOutput *(*Verify)(const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
 } CBCSignatureScheme;
 
