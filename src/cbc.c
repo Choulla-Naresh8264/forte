@@ -4,7 +4,7 @@
 
 #include "cbc.h"
 
-// Dummy containers
+// Polymorphic containers
 struct cbc_parameters {
     void *context;
 };
@@ -24,6 +24,29 @@ struct cbc_input {
     void *context;
 };
 struct cbc_output {
+    void *context;
+};
+
+// Dummy containers
+struct cbc_parameters_be {
+    void *context;
+};
+struct cbc_master_key_be {
+    void *context;
+};
+struct cbc_secret_key_be {
+    void *context;
+};
+struct cbc_public_index_be {
+    void *context;
+};
+struct cbc_encrypted_payload_be {
+    void *context;
+};
+struct cbc_input_be {
+    void *context;
+};
+struct cbc_output_be {
     void *context;
 };
 
