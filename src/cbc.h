@@ -18,6 +18,9 @@ typedef struct cbc_encrypted_payload CBCEncryptedPayload;
 typedef struct cbc_input CBCInput;
 typedef struct cbc_output CBCOutput;
 
+struct cbc_parameters_be;
+typedef struct cbc_parameters_be CBCParametersBE;
+
 typedef enum {
 	CBCScheme_BE,
 	CBCScheme_IBE,
@@ -42,6 +45,7 @@ typedef struct cbc_signature_scheme {
 	CBCOutput *(*Verify)(const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
 } CBCSignatureScheme;
 
+extern CBCEncryptionScheme *CBCEncryptionSchemeBE;
 
 //(CBCParameters, CBCMasterKey) = Setup(parameter)
 //CBCMasterKey = CreateMasterKey(CBCParameters)

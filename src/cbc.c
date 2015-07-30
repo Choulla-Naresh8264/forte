@@ -4,9 +4,34 @@
 
 #include "cbc.h"
 
+// Dummy containers
+struct cbc_parameters {
+    void *context;
+};
+struct cbc_master_key {
+    void *context;
+};
+struct cbc_secret_key {
+    void *context;
+};
+struct cbc_public_index {
+    void *context;
+};
+struct cbc_encrypted_payload {
+    void *context;
+};
+struct cbc_input {
+    void *context;
+};
+struct cbc_output {
+    void *context;
+};
+
+// Dummy functions 
 CBCParameters *
 beSetup(void) 
 {
+    CBCParameters *parameters = (CBCParameters *) malloc(sizeof(CBCParameters));
     return NULL;
 }
 
@@ -41,5 +66,3 @@ CBCEncryptionScheme *CBCEncryptionSchemeBE = &(CBCEncryptionScheme) {
     .Encrypt = (CBCEncryptedPayload * (*)(const CBCParameters *, const CBCInput *)) beEncrypt,
     .Decrypt = (CBCOutput * (*)(const CBCSecretKey *, const CBCEncryptedPayload *)) beDecrypt,
 };
-
-
