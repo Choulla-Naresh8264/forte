@@ -52,13 +52,13 @@ struct cbc_output_dummy {
 
 struct cbc_encryption_scheme {
     void *instance;
-    const CBCEncryptionScheme *interface;
-}
+    const CBCEncryptionSchemeInterface *interface;
+};
 
 struct cbc_signing_scheme {
     void *instance;
-    const CBCSignatureScheme *interface;
-}
+    const CBCSignatureSchemeInterface *interface;
+};
 
 // Dummy functions 
 CBCParameters *
@@ -74,7 +74,7 @@ dummySetup(int initial)
 }
 
 CBCMasterKey *
-dummyCreateMasterKey(const CBCParameters *parameters) 
+dummyCreateMasterKey(void *scheme, const CBCParameters *parameters) 
 {
     CBCMasterKey *masterKey = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
     
@@ -108,9 +108,9 @@ dummyCreateInput(int val)
 }
 
 CBCSecretKey *
-dummyKeyGen(const CBCMasterKey *msk, const CBCPublicIndex *index) 
+dummyKeyGen(void *scheme, const CBCMasterKey *msk, const CBCPublicIndex *index) 
 {
-    CBCSecretKeys *secretKey = (CBCSecretKeys *) malloc(sizeof(CBCSecretKeys));
+    CBCSecretKey *secretKey = (CBCSecretKey *) malloc(sizeof(CBCSecretKey));
     
     DummySecretKey *dummy = (DummySecretKey *) malloc(sizeof(DummySecretKey));
     DummyMasterKey *master = (DummyMasterKey *) msk->instance;
@@ -122,7 +122,7 @@ dummyKeyGen(const CBCMasterKey *msk, const CBCPublicIndex *index)
 }
 
 CBCEncryptedPayload *
-dummyEncrypt(const CBCParameters *params, const CBCInput *input)
+dummyEncrypt(void *scheme, const CBCParameters *params, const CBCInput *input)
 {
     CBCEncryptedPayload *payload = (CBCEncryptedPayload *) malloc(sizeof(CBCEncryptedPayload));
 
@@ -137,11 +137,11 @@ dummyEncrypt(const CBCParameters *params, const CBCInput *input)
 }
 
 CBCOutput *
-dummyDecrypt(const CBCSecretKey *sk, const CBCEncryptedPayload *payload)
+dummyDecrypt(void *scheme, const CBCSecretKey *sk, const CBCEncryptedPayload *payload)
 {
     CBCOutput *output = (CBCOutput *) malloc(sizeof(CBCOutput));
 
-    DummySecretKey *dk = (DummySecretKey *) sk->instnace;
+    DummySecretKey *dk = (DummySecretKey *) sk->instance;
     DummyEncryptedPayload *dp = (DummyEncryptedPayload *) payload->instance;
     DummyOutput *dout = (DummyOutput *) malloc(sizeof(DummyOutput));
     dout->x = dk->x + dp->x;
@@ -151,10 +151,34 @@ dummyDecrypt(const CBCSecretKey *sk, const CBCEncryptedPayload *payload)
     return output;
 }
 
-CBCEncryptionScheme *CBCEncryptionSchemeBE = &(CBCEncryptionScheme) {
-    .Setup = (CBCParameters * (*)(void)) dummySetup,
-    .GenerateMasterKey = (CBCMasterKey * (*)(const CBCParameters *)) dummyCreateMasterKey,
-    .GeneratePrivateKey = (CBCSecretKey * (*)(const CBCMasterKey *, const CBCPublicIndex *)) dummyKeyGen,
-    .Encrypt = (CBCEncryptedPayload * (*)(const CBCParameters *, const CBCInput *)) dummyEncrypt,
-    .Decrypt = (CBCOutput * (*)(const CBCSecretKey *, const CBCEncryptedPayload *)) dummyDecrypt,
+CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy = &(CBCEncryptionSchemeInterface) {
+    .GenerateMasterKey = (CBCMasterKey * (*)(void *scheme, const void *)) dummyCreateMasterKey,
+    .GeneratePrivateKey = (CBCSecretKey * (*)(void *scheme, const void *, const void *)) dummyKeyGen,
+    .Encrypt = (CBCEncryptedPayload * (*)(void *scheme, const void *, const void *)) dummyEncrypt,
+    .Decrypt = (CBCOutput * (*)(void *scheme, const void *, const void *)) dummyDecrypt,
 };
+
+CBCMasterKey *
+cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters)
+{
+    return (scheme->interface->GenerateMasterKey(scheme->instance, parameters->instance));
+}
+
+CBCSecretKey *
+cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index)
+{
+    return (scheme->interface->GeneratePrivateKey(scheme->instance, masterKey->instance, index->instance));
+}
+
+CBCEncryptedPayload *
+cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input)
+{
+    return (scheme->interface->Encrypt(scheme->instance, params->instance, input->instance));
+}
+
+CBCOutput *
+cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload)
+{
+    return (scheme->interface->Decrypt(scheme->instance, secretKey->instance, encryptedPayload->instance));
+}
+

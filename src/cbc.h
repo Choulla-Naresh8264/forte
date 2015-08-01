@@ -2,6 +2,9 @@
 #ifndef libcbc_h_
 #define libcbc_h_
 
+struct cbc_encryption_scheme;
+typedef struct cbc_encryption_scheme CBCEncryptionScheme;
+
 // General
 struct cbc_parameters;
 struct cbc_master_key;
@@ -35,32 +38,35 @@ typedef struct cbc_input_dummy DummyInput;
 struct cbc_output_dummy;
 typedef struct cbc_output_dummy DummyOutput;
 
-typedef enum {
-	CBCScheme_BE,
-	CBCScheme_IBE,
-	CBCScheme_CPABE,
-	CBCScheme_KPABE,
-	CBCScheme_RSA,
-	CBCScheme_Dummy,
-	CBCScheme_Invalid
-} CBCSchemeType;
+// typedef enum {
+// 	CBCScheme_BE,
+// 	CBCScheme_IBE,
+// 	CBCScheme_CPABE,
+// 	CBCScheme_KPABE,
+// 	CBCScheme_RSA,
+// 	CBCScheme_Dummy,
+// 	CBCScheme_Invalid
+// } CBCSchemeType;
 
-typedef struct cbc_encryption_scheme {
-	CBCParameters *(*Setup)(void);
-	CBCMasterKey *(*GenerateMasterKey)(const CBCParameters *parameters);
-	CBCSecretKey *(*GeneratePrivateKey)(const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-	CBCEncryptedPayload *(*Encrypt)(const CBCParameters *params, const CBCInput *input);
-	CBCOutput *(*Decrypt)(const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
-} CBCEncryptionScheme;
+typedef struct cbc_encryption_scheme_interface {
+	CBCMasterKey *(*GenerateMasterKey)(void *scheme, const void *parameters);
+	CBCSecretKey *(*GeneratePrivateKey)(void *scheme, const void *masterKey, const void *index);
+	CBCEncryptedPayload *(*Encrypt)(void *scheme, const void *params, const void *input);
+	CBCOutput *(*Decrypt)(void *scheme, const void *secretKey, const void *encryptedPayload);
+} CBCEncryptionSchemeInterface;
 
-typedef struct cbc_signature_scheme {
-	CBCParameters *(*Setup)(void);
-	CBCMasterKey *(*GenerateMasterKey)(const CBCParameters *parameters);
-	CBCSecretKey *(*GeneratePrivateKey)(const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-	CBCEncryptedPayload *(*Sign)(const CBCParameters *params, const CBCInput *input);
-	CBCOutput *(*Verify)(const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
-} CBCSignatureScheme;
+typedef struct cbc_signature_scheme_interface {
+	CBCMasterKey *(*GenerateMasterKey)(void *scheme, const void *parameters);
+	CBCSecretKey *(*GeneratePrivateKey)(void *scheme, const void *masterKey, const void *index);
+	CBCEncryptedPayload *(*Sign)(void *scheme, const CBCParameters *params, const void *input);
+	CBCOutput *(*Verify)(void *scheme, const void *secretKey, const void *encryptedPayload);
+} CBCSignatureSchemeInterface;
 
-extern CBCEncryptionScheme *CBCEncryptionSchemeBE;
+CBCMasterKey *cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters);
+CBCSecretKey *cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index);
+CBCEncryptedPayload *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input);
+CBCOutput *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload);
+
+extern CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy;
 
 #endif /* libcbc_h_ */
