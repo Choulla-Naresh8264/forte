@@ -55,107 +55,90 @@ struct cbc_encryption_scheme {
     const CBCEncryptionSchemeInterface *interface;
 };
 
+// TODO: use these in the functions later...
+struct cbc_encryption_scheme_dummy {
+    int x; // empty
+    DummyParameters *params;
+    DummyMasterKey *msk;
+};
+
 struct cbc_signing_scheme {
     void *instance;
     const CBCSignatureSchemeInterface *interface;
 };
 
-// Dummy functions 
-CBCParameters *
-dummySetup(int initial) 
+DummyEncryptionScheme *
+dummyCreate(int x)
 {
-    CBCParameters *parameters = (CBCParameters *) malloc(sizeof(CBCParameters));
-
-    DummyParameters *dummy = (DummyParameters *) malloc(sizeof(DummyParameters));
-    dummy->x = initial;
-    parameters->instance = dummy;
-
-    return parameters;
+    DummyEncryptionScheme *scheme = (DummyEncryptionScheme *) malloc(sizeof(DummyEncryptionScheme));
+    scheme->x = x;
+    return scheme;
 }
 
-CBCMasterKey *
-dummyCreateMasterKey(void *scheme, const CBCParameters *parameters) 
+// Dummy functions 
+DummyParameters *
+dummySetup(int initial) 
 {
-    CBCMasterKey *masterKey = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
-    
-    DummyMasterKey *dummy = (DummyMasterKey *) malloc(sizeof(DummyMasterKey));
-    DummyParameters *params = (DummyParameters *) parameters->instance;
-    dummy->x = params->x + 1;
-    masterKey->instance = dummy;
+    DummyParameters *dummy = (DummyParameters *) malloc(sizeof(DummyParameters));
+    dummy->x = initial;
+    return dummy;
+}
 
-    return masterKey;
+DummyMasterKey *
+dummyCreateMasterKey(DummyEncryptionScheme *scheme, const DummyParameters *parameters) 
+{
+    DummyMasterKey *dummy = (DummyMasterKey *) malloc(sizeof(DummyMasterKey));
+    dummy->x = parameters->x + 1;
+    return dummy;
 }
 
 // This function is specific to each scheme, and not part of the CBC interface
-CBCPublicIndex *
+DummyPublicIndex *
 dummyCreatePublicIndex(int val)
 {
-    CBCPublicIndex *index = (CBCPublicIndex *) malloc(sizeof(CBCPublicIndex));
     DummyPublicIndex *pindex = (DummyPublicIndex *) malloc(sizeof(DummyPublicIndex));
-    index->instance = pindex;
     pindex->x = val;
-    return index;
+    return pindex;
 }
 
-CBCInput *
+DummyInput *
 dummyCreateInput(int val)
 {
-    CBCInput *input = (CBCInput *) malloc(sizeof(CBCInput));
     DummyInput *di = (DummyInput *) malloc(sizeof(DummyInput));
     di->x = val;
-    input->instance = di;
-    return input;
+    return di;
 }
 
-CBCSecretKey *
-dummyKeyGen(void *scheme, const CBCMasterKey *msk, const CBCPublicIndex *index) 
-{
-    CBCSecretKey *secretKey = (CBCSecretKey *) malloc(sizeof(CBCSecretKey));
-    
+DummySecretKey *
+dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const DummyPublicIndex *index) 
+{   
     DummySecretKey *dummy = (DummySecretKey *) malloc(sizeof(DummySecretKey));
-    DummyMasterKey *master = (DummyMasterKey *) msk->instance;
-    DummyPublicIndex *pindex = (DummyPublicIndex *) index->instance;
-    dummy->x = master->x + pindex->x;
-    secretKey->instance = dummy;
+    dummy->x = msk->x + index->x;
 
-    return secretKey;
+    return dummy;
 }
 
-CBCEncryptedPayload *
-dummyEncrypt(void *scheme, const CBCParameters *params, const CBCInput *input)
+DummyEncryptedPayload *
+dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const DummyInput *input)
 {
-    CBCEncryptedPayload *payload = (CBCEncryptedPayload *) malloc(sizeof(CBCEncryptedPayload));
-
     DummyEncryptedPayload *enc = (DummyEncryptedPayload *) malloc(sizeof(DummyEncryptedPayload));
-    DummyParameters *dp = (DummyParameters *) params->instance;
-    DummyInput *di = (DummyInput *) input->instance;
-
-    enc->x = dp->x + di->x;
-    payload->instance = enc;
-
-    return payload;
+    enc->x = params->x + input->x;
+    return enc;
 }
 
-CBCOutput *
-dummyDecrypt(void *scheme, const CBCSecretKey *sk, const CBCEncryptedPayload *payload)
+DummyOutput *
+dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyEncryptedPayload *payload)
 {
-    CBCOutput *output = (CBCOutput *) malloc(sizeof(CBCOutput));
-
-    DummySecretKey *dk = (DummySecretKey *) sk->instance;
-    DummyEncryptedPayload *dp = (DummyEncryptedPayload *) payload->instance;
     DummyOutput *dout = (DummyOutput *) malloc(sizeof(DummyOutput));
-    dout->x = dk->x + dp->x;
-
-    output->instance = dout;
-
-    return output;
+    dout->x = sk->x + payload->x;
+    return dout;
 }
 
 CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy = &(CBCEncryptionSchemeInterface) {
-    .GenerateMasterKey = (CBCMasterKey * (*)(void *scheme, const void *)) dummyCreateMasterKey,
-    .GeneratePrivateKey = (CBCSecretKey * (*)(void *scheme, const void *, const void *)) dummyKeyGen,
-    .Encrypt = (CBCEncryptedPayload * (*)(void *scheme, const void *, const void *)) dummyEncrypt,
-    .Decrypt = (CBCOutput * (*)(void *scheme, const void *, const void *)) dummyDecrypt,
+    .GenerateMasterKey = (void * (*)(void *scheme, const void *)) dummyCreateMasterKey,
+    .GeneratePrivateKey = (void * (*)(void *scheme, const void *, const void *)) dummyKeyGen,
+    .Encrypt = (void * (*)(void *scheme, const void *, const void *)) dummyEncrypt,
+    .Decrypt = (void * (*)(void *scheme, const void *, const void *)) dummyDecrypt,
 };
 
 CBCMasterKey *
