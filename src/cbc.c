@@ -78,17 +78,26 @@ dummyCreateMasterKey(const CBCParameters *parameters)
 {
     CBCMasterKey *masterKey = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
     
-    DummyParameters *dummy = (DummyParameters *) malloc(sizeof(DummyParameters));
-    dummy->x = 1;
-    parameters->instance = dummy;
+    DummyMasterKey *dummy = (DummyMasterKey *) malloc(sizeof(DummyMasterKey));
+    DummyParameters *params = (DummyParameters *) parameters->instance;
+    dummy->x = params->x + 1;
+    masterKey->instance = dummy;
 
-    return parameters;
+    return masterKey;
 }
 
 CBCSecretKey *
 dummyKeyGen(const CBCMasterKey *msk, const CBCPublicIndex *index) 
 {
-    return NULL;
+    CBCSecretKeys *secretKey = (CBCSecretKeys *) malloc(sizeof(CBCSecretKeys));
+    
+    DummySecretKey *dummy = (DummySecretKey *) malloc(sizeof(DummySecretKey));
+    DummyMasterKey *master = (DummyMasterKey *) msk->instance;
+    DummyPublicIndex *pindex = (DummyPublicIndex *) index->instance;
+    dummy->x = master->x + pindex->x;
+    secretKey->instance = dummy;
+
+    return secretKey;
 }
 
 CBCEncryptedPayload *
