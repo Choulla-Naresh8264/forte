@@ -2,7 +2,7 @@
 #ifndef libcbc_h_
 #define libcbc_h_
 
-
+// General
 struct cbc_parameters;
 struct cbc_master_key;
 struct cbc_secret_key;
@@ -19,8 +19,21 @@ typedef struct cbc_encrypted_payload CBCEncryptedPayload;
 typedef struct cbc_input CBCInput;
 typedef struct cbc_output CBCOutput;
 
-struct cbc_parameters_be;
-typedef struct cbc_parameters_be CBCParametersBE;
+// Dummy-specific versions
+struct cbc_parameters_dummy;
+typedef struct cbc_parameters_dummy DummyParameters;
+struct cbc_master_key_dummy;
+typedef struct cbc_master_key_dummy DummyMasterKey;
+struct cbc_secret_key_dummy;
+typedef struct cbc_secret_key_dummy DummySecretKey;
+struct cbc_public_index_dummy;
+typedef struct cbc_public_index_dummy DummyPublicIndex;
+struct cbc_encrypted_payload_dummy;
+typedef struct cbc_encrypted_payload_dummy DummyEncryptedPayload;
+struct cbc_input_dummy;
+typedef struct cbc_input_dummy DummyInput;
+struct cbc_output_dummy;
+typedef struct cbc_output_dummy DummyOutput;
 
 typedef enum {
 	CBCScheme_BE,

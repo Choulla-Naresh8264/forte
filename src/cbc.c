@@ -6,25 +6,25 @@
 
 // Polymorphic containers
 struct cbc_parameters {
-    void *context;
+    void *instance;
 };
 struct cbc_master_key {
-    void *context;
+    void *instance;
 };
 struct cbc_secret_key {
-    void *context;
+    void *instance;
 };
 struct cbc_public_index {
-    void *context;
+    void *instance;
 };
 struct cbc_encrypted_payload {
-    void *context;
+    void *instance;
 };
 struct cbc_input {
-    void *context;
+    void *instance;
 };
 struct cbc_output {
-    void *context;
+    void *instance;
 };
 
 // Dummy containers
@@ -62,16 +62,27 @@ struct cbc_signing_scheme {
 
 // Dummy functions 
 CBCParameters *
-dummySetup(void) 
+dummySetup(int initial) 
 {
     CBCParameters *parameters = (CBCParameters *) malloc(sizeof(CBCParameters));
-    return NULL;
+
+    DummyParameters *dummy = (DummyParameters *) malloc(sizeof(DummyParameters));
+    dummy->x = initial;
+    parameters->instance = dummy;
+
+    return parameters;
 }
 
 CBCMasterKey *
 dummyCreateMasterKey(const CBCParameters *parameters) 
 {
-    return NULL;
+    CBCMasterKey *masterKey = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
+    
+    DummyParameters *dummy = (DummyParameters *) malloc(sizeof(DummyParameters));
+    dummy->x = 1;
+    parameters->instance = dummy;
+
+    return parameters;
 }
 
 CBCSecretKey *

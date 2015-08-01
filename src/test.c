@@ -4,7 +4,7 @@
 int 
 main(int argc, char **argv)
 {
-	CBCEncryptionScheme *be = CBCEncryptionSchemeBE;
+	// TODO
 
 	return 0;
 }
