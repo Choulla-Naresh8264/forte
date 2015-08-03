@@ -41,15 +41,15 @@ typedef struct cbc_input_dummy DummyInput;
 struct cbc_output_dummy;
 typedef struct cbc_output_dummy DummyOutput;
 
-// typedef enum {
-// 	CBCScheme_BE,
-// 	CBCScheme_IBE,
-// 	CBCScheme_CPABE,
-// 	CBCScheme_KPABE,
-// 	CBCScheme_RSA,
-// 	CBCScheme_Dummy,
-// 	CBCScheme_Invalid
-// } CBCSchemeType;
+typedef enum {
+	CBCScheme_BE,
+	CBCScheme_IBE,
+	CBCScheme_CPABE,
+	CBCScheme_KPABE,
+	CBCScheme_RSA,
+	CBCScheme_Dummy,
+	CBCScheme_Invalid
+} CBCSchemeType;
 
 typedef struct cbc_encryption_scheme_interface {
 	void *(*GenerateMasterKey)(void *scheme, const void *parameters);
@@ -64,6 +64,15 @@ typedef struct cbc_signature_scheme_interface {
 	void *(*Sign)(void *scheme, const CBCParameters *params, const void *input);
 	void *(*Verify)(void *scheme, const void *secretKey, const void *encryptedPayload);
 } CBCSignatureSchemeInterface;
+
+// TODO: these could be macros
+CBCParameters *cbcParameters_Create(void *instance);
+CBCMasterKey *cbcMasterKey_Create(void *instance);
+CBCSecretKey *cbcSecretKey_Create(void *instance);
+CBCInput *cbcInput_Create(void *instance);
+CBCEncryptedPayload *cbcEncryptedPayload_Create(void *instance);
+CBCOutput *cbcOutput_Create(void *instance);
+CBCPublicIndex *cbcPublicIndex_Create(void *instance);
 
 // generic functions
 CBCEncryptionScheme *cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface);

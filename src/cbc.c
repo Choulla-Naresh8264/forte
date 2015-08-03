@@ -150,6 +150,62 @@ cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface)
     return scheme;
 }
 
+CBCParameters *
+cbcParameters_Create(void *instance)
+{
+    CBCParameters *params = (CBCParameters *) malloc(sizeof(CBCParameters));
+    params->instance = instance;
+    return params;
+}
+
+CBCMasterKey *
+cbcMasterKey_Create(void *instance)
+{
+    CBCMasterKey *msk = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
+    msk->instance = instance;
+    return msk;
+}
+
+CBCSecretKey *
+cbcSecretKey_Create(void *instance)
+{
+    CBCSecretKey *sk = (CBCSecretKey *) malloc(sizeof(CBCSecretKey));
+    sk->instance = instance;
+    return sk;
+}
+
+CBCInput *
+cbcInput_Create(void *instance)
+{
+    CBCInput *input = (CBCInput *) malloc(sizeof(CBCInput));
+    input->instance = instance;
+    return input;
+}
+
+CBCEncryptedPayload *
+cbcEncryptedPayload_Create(void *instance)
+{
+    CBCEncryptedPayload *payload = (CBCEncryptedPayload *) malloc(sizeof(CBCEncryptedPayload));
+    payload->instance = instance;
+    return payload;
+}
+
+CBCOutput *
+cbcOutput_Create(void *instance)
+{
+    CBCOutput *output = (CBCOutput *) malloc(sizeof(CBCOutput));
+    output->instance = instance;
+    return output;
+}
+
+CBCPublicIndex *
+cbcPublicIndex_Create(void *instance)
+{
+    CBCPublicIndex *index = (CBCPublicIndex *) malloc(sizeof(CBCPublicIndex));
+    index->instance = instance;
+    return index;
+}
+
 CBCMasterKey *
 cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters)
 {
