@@ -66,6 +66,7 @@ typedef struct cbc_signature_scheme_interface {
 } CBCSignatureSchemeInterface;
 
 // generic functions
+CBCEncryptionScheme *cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface);
 CBCMasterKey *cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters);
 CBCSecretKey *cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index);
 CBCEncryptedPayload *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input);

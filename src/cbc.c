@@ -141,6 +141,15 @@ CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy = &(CBCEncryptionSchemeIn
     .Decrypt = (void * (*)(void *scheme, const void *, const void *)) dummyDecrypt,
 };
 
+CBCEncryptionScheme *
+cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface)
+{
+    CBCEncryptionScheme *scheme = (CBCEncryptionScheme *) malloc(sizeof(CBCEncryptionScheme));
+    scheme->instance = instance;
+    scheme->interface = interface;
+    return scheme;
+}
+
 CBCMasterKey *
 cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters)
 {
