@@ -4,6 +4,12 @@
 
 #include "cbc.h"
 
+// Encoding container
+struct cbc_encoded_value {
+    uint8_t *data;
+    size_t length;
+};
+
 // Polymorphic containers
 struct cbc_parameters {
     void *instance;

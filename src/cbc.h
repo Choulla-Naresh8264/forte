@@ -51,6 +51,14 @@ typedef enum {
 	CBCScheme_Invalid
 } CBCSchemeType;
 
+struct cbc_encoded_value;
+typedef struct cbc_encoded_value CBCEncodedValue;
+
+typedef struct cbc_encoder_interface {
+	CBCEncodedValue *(*Encode)(void *instance);
+	void *(*Decode)(CBCEncodedValue *encodedValue);
+} CBCEncoder;
+
 typedef struct cbc_encryption_scheme_interface {
 	void *(*GenerateMasterKey)(void *scheme, const void *parameters);
 	void *(*GeneratePrivateKey)(void *scheme, const void *masterKey, const void *index);

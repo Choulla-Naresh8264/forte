@@ -14,8 +14,8 @@ main(int argc, char** argv)
 	DummyOutput *output = dummyDecrypt(scheme, secretKey, paylaod);
 
 	// Step 2: Create generic instance and then use the base operations
-	// CBCEncryptionScheme *encrScheme = cbcEncryptionScheme(scheme, CBCEncryptionSchemeDummy);
-	// CBCMasterKey *msk = cbcGenerateMasterKey(scheme, params);
+	CBCEncryptionScheme *encrScheme = cbcEncryptionScheme(scheme, CBCEncryptionSchemeDummy);
+	CBCMasterKey *msk2 = cbcGenerateMasterKey(encrScheme, cbcParameters_Create(params));
 
     return 0;
 }
