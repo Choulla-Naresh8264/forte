@@ -56,6 +56,29 @@ struct cbc_output_dummy {
     int x;
 };
 
+// RSA containers
+struct cbc_parameters_rsa {
+    int x;
+};
+struct cbc_master_key_rsa {
+    int x;
+};
+struct cbc_secret_key_rsa {
+    int x;
+};
+struct cbc_public_index_rsa {
+    int x;
+};
+struct cbc_encrypted_payload_rsa {
+    int x;
+};
+struct cbc_input_rsa {
+    int x;
+};
+struct cbc_output_rsa {
+    int x;
+};
+
 struct cbc_encryption_scheme {
     void *instance;
     const CBCEncryptionSchemeInterface *interface;
