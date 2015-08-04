@@ -57,6 +57,7 @@ struct cbc_output_dummy {
 };
 
 // RSA containers
+// http://hayageek.com/rsa-encryption-decryption-openssl-c/
 struct cbc_parameters_rsa {
     int x;
 };
