@@ -8,6 +8,9 @@ typedef struct cbc_encryption_scheme CBCEncryptionScheme;
 struct cbc_encryption_scheme_dummy;
 typedef struct cbc_encryption_scheme_dummy DummyEncryptionScheme;
 
+struct cbc_encryption_scheme_rsa;
+typedef struct cbc_encryption_scheme_rsa RSAEncryptionScheme;
+
 // General
 struct cbc_parameters;
 struct cbc_master_key;
@@ -41,12 +44,28 @@ typedef struct cbc_input_dummy DummyInput;
 struct cbc_output_dummy;
 typedef struct cbc_output_dummy DummyOutput;
 
+// RSA versions
+struct cbc_parameters_rsa;
+typedef struct cbc_parameters_rsa RSAParameters;
+struct cbc_master_key_rsa;
+typedef struct cbc_master_key_rsa RSAMasterKey;
+struct cbc_secret_key_rsa;
+typedef struct cbc_secret_key_rsa RSASecretKey;
+struct cbc_public_index_rsa;
+typedef struct cbc_public_index_rsa RSAPublicIndex;
+struct cbc_encrypted_payload_rsa;
+typedef struct cbc_encrypted_payload_rsa RSAEncryptedPayload;
+struct cbc_input_rsa;
+typedef struct cbc_input_rsa RSAInput;
+struct cbc_output_rsa;
+typedef struct cbc_output_rsa RSAOutput;
+
 typedef enum {
+	CBCScheme_RSA,
 	CBCScheme_BE,
 	CBCScheme_IBE,
 	CBCScheme_CPABE,
 	CBCScheme_KPABE,
-	CBCScheme_RSA,
 	CBCScheme_Dummy,
 	CBCScheme_Invalid
 } CBCSchemeType;
