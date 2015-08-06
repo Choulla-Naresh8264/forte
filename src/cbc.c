@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <openssl/rsa.h>
 
 #include "cbc.h"
 
@@ -87,12 +86,13 @@ struct cbc_encryption_scheme {
 };
 
 struct cbc_encryption_scheme_dummy {
+    int x;
     DummyParameters *params;
     DummyMasterKey *msk;
 };
 
 struct cbc_encryption_scheme_rsa {
-    RSA *rsaContext;
+    // TODO: rsa context here
     RSAParameters *params;
     RSAMasterKey *msk;
 };
@@ -168,31 +168,11 @@ dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const Dumm
     return dout;
 }
 
-static RSA *
-_generateRSAFromFile(char *fileName)
-{
-    FILE * fp = fopen(filename,"rb");
-    if (fp == NULL) {
-        printf("Unable to open file %s \n",filename);
-        return NULL;    
-    }
-
-    RSA *rsa= RSA_new();
-
-    if (password == NULL || strlen(password) == 0) {
-        rsa = PEM_read_RSA_PUBKEY(fp, &rsa, NULL, NULL);
-    } else {
-        rsa = PEM_read_RSAPrivateKey(fp, &rsa, NULL, NULL);
-    }
-
-    return rsa;
-}
-
 RSAEncryptionScheme *
 rsaCreate(char *publicFile, char *privateFile)
 {
     RSAEncryptionScheme *scheme = (RSAEncryptionScheme *) malloc(sizeof(RSAEncryptionScheme));
-    scheme->rsaContext = _generateRSAFromFile(fileName, password);
+    // TODO
     return scheme;
 }
 
