@@ -8,6 +8,9 @@ typedef struct cbc_encryption_scheme CBCEncryptionScheme;
 struct cbc_encryption_scheme_dummy;
 typedef struct cbc_encryption_scheme_dummy DummyEncryptionScheme;
 
+struct cbc_encryption_scheme_rsa;
+typedef struct cbc_encryption_scheme_rsa RSAEncryptionScheme;
+
 // General
 struct cbc_parameters;
 struct cbc_master_key;
@@ -41,15 +44,39 @@ typedef struct cbc_input_dummy DummyInput;
 struct cbc_output_dummy;
 typedef struct cbc_output_dummy DummyOutput;
 
-// typedef enum {
-// 	CBCScheme_BE,
-// 	CBCScheme_IBE,
-// 	CBCScheme_CPABE,
-// 	CBCScheme_KPABE,
-// 	CBCScheme_RSA,
-// 	CBCScheme_Dummy,
-// 	CBCScheme_Invalid
-// } CBCSchemeType;
+// RSA versions
+struct cbc_parameters_rsa;
+typedef struct cbc_parameters_rsa RSAParameters;
+struct cbc_master_key_rsa;
+typedef struct cbc_master_key_rsa RSAMasterKey;
+struct cbc_secret_key_rsa;
+typedef struct cbc_secret_key_rsa RSASecretKey;
+struct cbc_public_index_rsa;
+typedef struct cbc_public_index_rsa RSAPublicIndex;
+struct cbc_encrypted_payload_rsa;
+typedef struct cbc_encrypted_payload_rsa RSAEncryptedPayload;
+struct cbc_input_rsa;
+typedef struct cbc_input_rsa RSAInput;
+struct cbc_output_rsa;
+typedef struct cbc_output_rsa RSAOutput;
+
+typedef enum {
+	CBCScheme_RSA,
+	CBCScheme_BE,
+	CBCScheme_IBE,
+	CBCScheme_CPABE,
+	CBCScheme_KPABE,
+	CBCScheme_Dummy,
+	CBCScheme_Invalid
+} CBCSchemeType;
+
+struct cbc_encoded_value;
+typedef struct cbc_encoded_value CBCEncodedValue;
+
+typedef struct cbc_encoder_interface {
+	CBCEncodedValue *(*Encode)(void *instance);
+	void *(*Decode)(CBCEncodedValue *encodedValue);
+} CBCEncoder;
 
 typedef struct cbc_encryption_scheme_interface {
 	void *(*GenerateMasterKey)(void *scheme, const void *parameters);
@@ -65,7 +92,17 @@ typedef struct cbc_signature_scheme_interface {
 	void *(*Verify)(void *scheme, const void *secretKey, const void *encryptedPayload);
 } CBCSignatureSchemeInterface;
 
+// TODO: these could be macros
+CBCParameters *cbcParameters_Create(void *instance);
+CBCMasterKey *cbcMasterKey_Create(void *instance);
+CBCSecretKey *cbcSecretKey_Create(void *instance);
+CBCInput *cbcInput_Create(void *instance);
+CBCEncryptedPayload *cbcEncryptedPayload_Create(void *instance);
+CBCOutput *cbcOutput_Create(void *instance);
+CBCPublicIndex *cbcPublicIndex_Create(void *instance);
+
 // generic functions
+CBCEncryptionScheme *cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface);
 CBCMasterKey *cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters);
 CBCSecretKey *cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index);
 CBCEncryptedPayload *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input);

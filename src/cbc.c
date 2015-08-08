@@ -4,6 +4,12 @@
 
 #include "cbc.h"
 
+// Encoding container
+struct cbc_encoded_value {
+    uint8_t *data;
+    size_t length;
+};
+
 // Polymorphic containers
 struct cbc_parameters {
     void *instance;
@@ -50,16 +56,45 @@ struct cbc_output_dummy {
     int x;
 };
 
+// RSA containers
+// http://hayageek.com/rsa-encryption-decryption-openssl-c/
+struct cbc_parameters_rsa {
+    int x;
+};
+struct cbc_master_key_rsa {
+    int x;
+};
+struct cbc_secret_key_rsa {
+    int x;
+};
+struct cbc_public_index_rsa {
+    int x;
+};
+struct cbc_encrypted_payload_rsa {
+    int x;
+};
+struct cbc_input_rsa {
+    int x;
+};
+struct cbc_output_rsa {
+    int x;
+};
+
 struct cbc_encryption_scheme {
     void *instance;
     const CBCEncryptionSchemeInterface *interface;
 };
 
-// TODO: use these in the functions later...
 struct cbc_encryption_scheme_dummy {
-    int x; // empty
+    int x;
     DummyParameters *params;
     DummyMasterKey *msk;
+};
+
+struct cbc_encryption_scheme_rsa {
+    // TODO: rsa context here
+    RSAParameters *params;
+    RSAMasterKey *msk;
 };
 
 struct cbc_signing_scheme {
@@ -114,7 +149,6 @@ dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const Dumm
 {   
     DummySecretKey *dummy = (DummySecretKey *) malloc(sizeof(DummySecretKey));
     dummy->x = msk->x + index->x;
-
     return dummy;
 }
 
@@ -134,12 +168,85 @@ dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const Dumm
     return dout;
 }
 
+RSAEncryptionScheme *
+rsaCreate(char *publicFile, char *privateFile)
+{
+    RSAEncryptionScheme *scheme = (RSAEncryptionScheme *) malloc(sizeof(RSAEncryptionScheme));
+    // TODO
+    return scheme;
+}
+
 CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy = &(CBCEncryptionSchemeInterface) {
     .GenerateMasterKey = (void * (*)(void *scheme, const void *)) dummyCreateMasterKey,
     .GeneratePrivateKey = (void * (*)(void *scheme, const void *, const void *)) dummyKeyGen,
     .Encrypt = (void * (*)(void *scheme, const void *, const void *)) dummyEncrypt,
     .Decrypt = (void * (*)(void *scheme, const void *, const void *)) dummyDecrypt,
 };
+
+CBCEncryptionScheme *
+cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface)
+{
+    CBCEncryptionScheme *scheme = (CBCEncryptionScheme *) malloc(sizeof(CBCEncryptionScheme));
+    scheme->instance = instance;
+    scheme->interface = interface;
+    return scheme;
+}
+
+CBCParameters *
+cbcParameters_Create(void *instance)
+{
+    CBCParameters *params = (CBCParameters *) malloc(sizeof(CBCParameters));
+    params->instance = instance;
+    return params;
+}
+
+CBCMasterKey *
+cbcMasterKey_Create(void *instance)
+{
+    CBCMasterKey *msk = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
+    msk->instance = instance;
+    return msk;
+}
+
+CBCSecretKey *
+cbcSecretKey_Create(void *instance)
+{
+    CBCSecretKey *sk = (CBCSecretKey *) malloc(sizeof(CBCSecretKey));
+    sk->instance = instance;
+    return sk;
+}
+
+CBCInput *
+cbcInput_Create(void *instance)
+{
+    CBCInput *input = (CBCInput *) malloc(sizeof(CBCInput));
+    input->instance = instance;
+    return input;
+}
+
+CBCEncryptedPayload *
+cbcEncryptedPayload_Create(void *instance)
+{
+    CBCEncryptedPayload *payload = (CBCEncryptedPayload *) malloc(sizeof(CBCEncryptedPayload));
+    payload->instance = instance;
+    return payload;
+}
+
+CBCOutput *
+cbcOutput_Create(void *instance)
+{
+    CBCOutput *output = (CBCOutput *) malloc(sizeof(CBCOutput));
+    output->instance = instance;
+    return output;
+}
+
+CBCPublicIndex *
+cbcPublicIndex_Create(void *instance)
+{
+    CBCPublicIndex *index = (CBCPublicIndex *) malloc(sizeof(CBCPublicIndex));
+    index->instance = instance;
+    return index;
+}
 
 CBCMasterKey *
 cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters)
