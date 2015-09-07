@@ -1,6 +1,8 @@
-
 #ifndef libcbc_h_
 #define libcbc_h_
+
+#include <stdint.h>
+#include <stddef.h>
 
 struct cbc_encryption_scheme;
 typedef struct cbc_encryption_scheme CBCEncryptionScheme;
@@ -20,10 +22,10 @@ struct cbc_encrypted_payload;
 struct cbc_input;
 struct cbc_output;
 
-typedef struct cbc_parameters CBCParameters;
-typedef struct cbc_master_key CBCMasterKey;
-typedef struct cbc_secret_key CBCSecretKey;
-typedef struct cbc_public_index CBCPublicIndex;
+typedef struct cbc_parameters CBCParameters; // msk and params
+typedef struct cbc_master_key CBCMasterKey; // both public and private
+typedef struct cbc_secret_key CBCSecretKey; // secret RSA key
+typedef struct cbc_public_index CBCPublicIndex; // public RSA key
 typedef struct cbc_encrypted_payload CBCEncryptedPayload;
 typedef struct cbc_input CBCInput;
 typedef struct cbc_output CBCOutput;
@@ -60,12 +62,25 @@ typedef struct cbc_input_rsa RSAInput;
 struct cbc_output_rsa;
 typedef struct cbc_output_rsa RSAOutput;
 
+// BEBGW versions
+struct cbc_parameters_bebgw;
+typedef struct cbc_parameters_bebgw BEBGWParameters;
+struct cbc_master_key_bebgw;
+typedef struct cbc_master_key_bebgw BEBGWMasterKey;
+struct cbc_secret_key_bebgw;
+typedef struct cbc_secret_key_bebgw BEBGWSecretKey;
+struct cbc_public_index_bebgw;
+typedef struct cbc_public_index_bebgw BEBGWPublicIndex;
+struct cbc_encrypted_payload_bebgw;
+typedef struct cbc_encrypted_payload_bebgw BEBGWEncryptedPayload;
+struct cbc_input_bebgw;
+typedef struct cbc_input_bebgw BEBGWInput;
+struct cbc_output_bebgw;
+typedef struct cbc_output_bebgw BEBGWOutput;
+
 typedef enum {
 	CBCScheme_RSA,
 	CBCScheme_BE,
-	CBCScheme_IBE,
-	CBCScheme_CPABE,
-	CBCScheme_KPABE,
 	CBCScheme_Dummy,
 	CBCScheme_Invalid
 } CBCSchemeType;
@@ -110,13 +125,36 @@ CBCOutput *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey
 
 // implementation functions
 DummyEncryptionScheme *dummyCreate(int x);
-DummyParameters *dummySetup(int initial);
-DummyMasterKey *dummyCreateMasterKey(DummyEncryptionScheme *scheme, const DummyParameters *parameters);
+// DummyParameters *dummySetup(int initial);
+// DummyMasterKey *dummyCreateMasterKey(DummyEncryptionScheme *scheme, const DummyParameters *parameters);
 DummyPublicIndex *dummyCreatePublicIndex(int val);
 DummyInput *dummyCreateInput(int val);
 DummySecretKey *dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const DummyPublicIndex *index);
 DummyEncryptedPayload *dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const DummyInput *input);
 DummyOutput *dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyEncryptedPayload *payload);
+
+// rsa implementation functions
+RSAEncryptionScheme *rsaCreate(char *publicKeyPemFile, char *privateKey);
+RSAParameters *rsaGetParameters(RSAEncryptionScheme *scheme);
+RSAMasterKey *rsaGetMasterKey(RSAEncryptionScheme *scheme);
+RSAPublicIndex *rsaCreatePublicIndex(RSAEncryptionScheme *scheme);
+RSAInput *rsaCreateInput(size_t length, uint8_t input[length]);
+RSASecretKey *rsaKeyGen(RSAEncryptionScheme *scheme);
+RSAEncryptedPayload *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAInput *input);
+RSAOutput *rsaDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncryptedPayload *payload);
+
+// bebgw
+BEBGWEncryptionScheme *bebgwCreate(size_t groupSize, char *pairFileName);
+BEBGWParameters *bebgwGetParameters(RSAEncryptionScheme *scheme);
+BEBGWMasterKey *bebgwGetMasterKey(RSAEncryptionScheme *scheme);
+BEBGWPublicIndex *bebgwCreatePublicIndex(RSAEncryptionScheme *scheme);
+BEBGWInput *bebgwCreateInput(size_t length, uint8_t input[length]);
+BEBGWSecretKey *bebgwKeyGen(RSAEncryptionScheme *scheme);
+BEBGWEncryptedPayload *bebgwEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAInput *input);
+BEBGWOutput *bebgwDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncryptedPayload *payload);
+
+void rsaDisplayCiphertext(RSAEncryptedPayload *output);
+void rsaDisplay(RSAOutput *output);
 
 extern CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy;
 
