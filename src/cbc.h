@@ -13,6 +13,10 @@ typedef struct cbc_encryption_scheme_dummy DummyEncryptionScheme;
 struct cbc_encryption_scheme_rsa;
 typedef struct cbc_encryption_scheme_rsa RSAEncryptionScheme;
 
+struct cbc_encryption_scheme_bebgw;
+typedef struct cbc_encryption_scheme_bebgw BEBGWEncryptionScheme;
+
+
 // General
 struct cbc_parameters;
 struct cbc_master_key;
@@ -141,17 +145,17 @@ RSAPublicIndex *rsaCreatePublicIndex(RSAEncryptionScheme *scheme);
 RSAInput *rsaCreateInput(size_t length, uint8_t input[length]);
 RSASecretKey *rsaKeyGen(RSAEncryptionScheme *scheme);
 RSAEncryptedPayload *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAInput *input);
-RSAOutput *rsaDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncryptedPayload *payload);
+RSAOutput *rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSAEncryptedPayload *payload);
 
 // bebgw
 BEBGWEncryptionScheme *bebgwCreate(size_t groupSize, char *pairFileName);
-BEBGWParameters *bebgwGetParameters(RSAEncryptionScheme *scheme);
-BEBGWMasterKey *bebgwGetMasterKey(RSAEncryptionScheme *scheme);
-BEBGWPublicIndex *bebgwCreatePublicIndex(RSAEncryptionScheme *scheme);
+BEBGWParameters *bebgwGetParameters(BEBGWEncryptionScheme *scheme);
+BEBGWMasterKey *bebgwGetMasterKey(BEBGWEncryptionScheme *scheme);
+BEBGWPublicIndex *bebgwCreatePublicIndex(BEBGWEncryptionScheme *scheme);
 BEBGWInput *bebgwCreateInput(size_t length, uint8_t input[length]);
-BEBGWSecretKey *bebgwKeyGen(RSAEncryptionScheme *scheme);
-BEBGWEncryptedPayload *bebgwEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAInput *input);
-BEBGWOutput *bebgwDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncryptedPayload *payload);
+BEBGWSecretKey *bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index);
+BEBGWEncryptedPayload *bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const BEBGWInput *input);
+BEBGWOutput *bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWEncryptedPayload *payload);
 
 void rsaDisplayCiphertext(RSAEncryptedPayload *output);
 void rsaDisplay(RSAOutput *output);

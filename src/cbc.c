@@ -116,6 +116,10 @@ struct cbc_public_index_bebgw {
 struct cbc_encrypted_payload_bebgw {
     element_t C0;
     element_t C1;
+
+    element_t key;
+    uint8_t *payload;
+    size_t length;
 };
 struct cbc_input_bebgw {
     uint8_t *payload;
@@ -140,6 +144,11 @@ struct cbc_encryption_scheme_dummy {
 struct cbc_encryption_scheme_rsa {
     RSAParameters *params;
     RSAMasterKey *msk;
+};
+
+struct cbc_encryption_scheme_bebgw {
+    BEBGWParameters *params;
+    BEBGWMasterKey *msk;
 };
 
 struct cbc_signing_scheme {
@@ -334,7 +343,7 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAIn
 }
 
 RSAOutput *
-rsaDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncryptedPayload *payload)
+rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSAEncryptedPayload *payload)
 {
     RSAOutput *pt = (RSAOutput *) malloc(sizeof(RSAOutput));
 
@@ -349,23 +358,12 @@ rsaDecrypt(RSAEncryptionScheme *scheme, const RSASecretKey *sk, const RSAEncrypt
     return pt;
 }
 
-BEBGWEncryptionScheme *
-bebgwCreate(size_t groupSize, char *pairFileName)
-{
-    BEBGWEncryptionScheme *scheme = (BEBGWEncryptionScheme *) malloc(sizeof(BEBGWEncryptionScheme));
-
-    scheme->params = rsaSetup(publicFile);
-    scheme->msk = rsaCreateMasterKey(scheme, scheme->params, privateFile);
-
-    return scheme;
-}
-
 BEBGWParameters *
 bebgwSetup(size_t groupSize, char *pairFileName)
 {
     BEBGWParameters *params = (BEBGWParameters *) malloc(sizeof(BEBGWParameters));
 
-    // Setup curve in gbp
+    // Setup curve
     FILE *curveFile = fopen(pairFileName, "r");
     params->pairFileName = strdup(pairFileName);
     if(!curveFile) {
@@ -445,13 +443,124 @@ bebgwCreateMasterKey(BEBGWParameters *params)
 {
     BEBGWMasterKey *msk = (BEBGWMasterKey *) malloc(sizeof(BEBGWMasterKey));
 
-    element_init_Zr(msk->privateKey, params->->pairing);
+    element_init_Zr(msk->privateKey, params->pairing);
     element_random(msk->privateKey);
 
     element_init(msk->publicKey, params->pairing->G1);
     element_pow_zn(msk->publicKey, params->g, msk->privateKey);
 
     return msk;
+}
+
+BEBGWParameters *
+bebgwGetParameters(BEBGWEncryptionScheme *scheme)
+{
+    return scheme->params;
+}
+
+BEBGWMasterKey *
+bebgwGetMasterKey(BEBGWEncryptionScheme *scheme)
+{
+    return scheme->msk;
+}
+
+BEBGWSecretKey *
+bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index)
+{
+    BEBGWParameters *params = scheme->params;
+    BEBGWMasterKey *msk = scheme->msk;
+
+    BEBGWSecretKey *secretKey = (BEBGWSecretKey *) malloc(sizeof(BEBGWSecretKey));
+
+    element_init(secretKey->g_i_gamma, params->pairing->G1);
+    element_init(secretKey->g_i, params->pairing->G1);
+    element_init(secretKey->h_i, params->pairing->G2);
+    secretKey->index = index;
+    element_set(secretKey->g_i, params->gs[index - 1]);
+    element_set(secretKey->h_i, params->hs[index - 1]);
+    element_pow_zn(secretKey->g_i_gamma, params->gs[index - 1], msk->privateKey);
+
+    return secretKey;
+}
+
+BEBGWEncryptedPayload *
+bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const BEBGWInput *input)
+{
+    BEBGWEncryptedPayload *ct = (BEBGWEncryptedPayload *) malloc(sizeof(BEBGWEncryptedPayload));
+
+    element_t t;
+    element_init_Zr(t, params->pairing);
+    element_random(t);
+
+    element_t key; // the symmetric encryption key
+    element_init(key, params->pairing->GT);
+    element_init(ct->C0, params->pairing->G2);
+    element_init(ct->C1, params->pairing->G1);
+
+    // Compute K
+    element_pairing(key, params->gs[params->groupSize - 1], params->hs[0]);
+    element_pow_zn(key, key, t);
+
+    // Compute C0
+    element_pow_zn(ct->C0, params->h, t);
+
+    // Compute C1
+    element_mul(ct->C1, scheme->msk->publicKey, scheme->msk->encryptionProduct);
+    element_pow_zn(ct->C1, ct->C1, t);
+    element_clear(t);
+
+    // TODO: encrypt payload of CT with symmetric key "key"
+
+    return ct;
+}
+
+BEBGWOutput *
+bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWEncryptedPayload *ciphertext)
+{
+    element_t temp;
+    element_t temp2;
+    element_t di_de;
+    element_t temp3;
+
+    BEBGWOutput *plaintext = (BEBGWOutput *) malloc(sizeof(BEBGWOutput));
+
+    element_init(temp, params->pairing->GT);
+    element_init(temp2, params->pairing->GT);
+    element_init(di_de, params->pairing->G1);
+    element_init(temp3, params->pairing->GT);
+
+    // Generate the numerator
+    element_pairing(temp, ciphertext->C1, sk->h_i);
+
+    // G1 element in denom
+    element_mul(di_de, sk->g_i_gamma, sk->decr_prod);
+
+    // Generate the denominator
+    element_pairing(temp2, di_de, ciphertext->C0);
+
+    // Invert the denominator
+    element_invert(temp3, temp2);
+
+    element_t key;
+    element_init(key, params->pairing->GT);
+
+    // Multiply the numerator by the inverted denominator
+    element_mul(key, temp, temp3);
+
+    // TODO: we now have the key to decrypt the ciphertext
+
+    return plaintext;
+}
+
+BEBGWEncryptionScheme *
+bebgwCreate(size_t groupSize, char *pairFileName)
+{
+    BEBGWEncryptionScheme *scheme = (BEBGWEncryptionScheme *) malloc(sizeof(BEBGWEncryptionScheme));
+
+    scheme->params = bebgwSetup(groupSize, pairFileName);
+    scheme->msk = bebgwCreateMasterKey(scheme->params);
+
+    return scheme;
 }
 
 CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy = &(CBCEncryptionSchemeInterface) {
