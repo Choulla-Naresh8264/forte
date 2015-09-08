@@ -28,14 +28,12 @@ struct cbc_secret_key {
 struct cbc_public_index {
     void *instance;
 };
-struct cbc_encrypted_payload {
+struct cbc_ciphertext {
     void *instance;
 };
-struct cbc_input {
-    void *instance;
-};
-struct cbc_output {
-    void *instance;
+struct cbc_blob {
+    uint8_t *payload;
+    size_t length;
 };
 
 // Dummy containers
@@ -51,13 +49,7 @@ struct cbc_secret_key_dummy {
 struct cbc_public_index_dummy {
     int x;
 };
-struct cbc_encrypted_payload_dummy {
-    int x;
-};
-struct cbc_input_dummy {
-    int x;
-};
-struct cbc_output_dummy {
+struct cbc_ciphertext_dummy {
     int x;
 };
 
@@ -75,15 +67,7 @@ struct cbc_secret_key_rsa {
 struct cbc_public_index_rsa {
     RSA *publicRSA;
 };
-struct cbc_encrypted_payload_rsa {
-    uint8_t *payload;
-    size_t length;
-};
-struct cbc_input_rsa {
-    uint8_t *payload;
-    size_t length;
-};
-struct cbc_output_rsa {
+struct cbc_ciphertext_rsa {
     uint8_t *payload;
     size_t length;
 };
@@ -113,21 +97,13 @@ struct cbc_secret_key_bebgw {
 struct cbc_public_index_bebgw {
     int index;
 };
-struct cbc_encrypted_payload_bebgw {
+struct cbc_ciphertext_bebgw {
+    // Header elements (used to derive encryption/decryption key)
     element_t C0;
     element_t C1;
 
-    element_t key;
-    uint8_t *payload;
-    size_t length;
-};
-struct cbc_input_bebgw {
-    uint8_t *payload;
-    size_t length;
-};
-struct cbc_output_bebgw {
-    uint8_t *payload;
-    size_t length;
+    // The actual encrypted data
+    cbc_blob payload;
 };
 
 struct cbc_encryption_scheme {
@@ -190,14 +166,6 @@ dummyCreatePublicIndex(int val)
     return pindex;
 }
 
-DummyInput *
-dummyCreateInput(int val)
-{
-    DummyInput *di = (DummyInput *) malloc(sizeof(DummyInput));
-    di->x = val;
-    return di;
-}
-
 DummySecretKey *
 dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const DummyPublicIndex *index)
 {
@@ -207,7 +175,7 @@ dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const Dumm
 }
 
 DummyEncryptedPayload *
-dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const DummyInput *input)
+dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCBlob *input)
 {
     DummyEncryptedPayload *enc = (DummyEncryptedPayload *) malloc(sizeof(DummyEncryptedPayload));
     enc->x = params->x + input->x;
