@@ -38,19 +38,19 @@ struct cbc_blob {
 
 // Dummy containers
 struct cbc_parameters_dummy {
-    int x;
+    size_t x;
 };
 struct cbc_master_key_dummy {
-    int x;
+    size_t x;
 };
 struct cbc_secret_key_dummy {
-    int x;
+    size_t x;
 };
 struct cbc_public_index_dummy {
-    int x;
+    size_t x;
 };
 struct cbc_ciphertext_dummy {
-    int x;
+    size_t x;
 };
 
 // RSA containers
@@ -92,10 +92,10 @@ struct cbc_secret_key_bebgw {
     element_t g_i;
     element_t h_i;
     element_t decr_prod;
-    int index;
+    size_t index;
 };
 struct cbc_public_index_bebgw {
-    int index;
+    size_t index;
 };
 struct cbc_ciphertext_bebgw {
     // Header elements (used to derive encryption/decryption key)
@@ -112,7 +112,6 @@ struct cbc_encryption_scheme {
 };
 
 struct cbc_encryption_scheme_dummy {
-    int x;
     DummyParameters *params;
     DummyMasterKey *msk;
 };
@@ -174,19 +173,19 @@ dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const Dumm
     return dummy;
 }
 
-DummyEncryptedPayload *
+DummyCiphertext *
 dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCBlob *input)
 {
-    DummyEncryptedPayload *enc = (DummyEncryptedPayload *) malloc(sizeof(DummyEncryptedPayload));
-    enc->x = params->x + input->x;
+    DummyCiphertext *enc = (DummyCiphertext *) malloc(sizeof(DummyCiphertext));
+    enc->x = input->length;
     return enc;
 }
 
-DummyOutput *
-dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyEncryptedPayload *payload)
+CBCBlob *
+dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyCiphertext *payload)
 {
-    DummyOutput *dout = (DummyOutput *) malloc(sizeof(DummyOutput));
-    dout->x = sk->x + payload->x;
+    CBCBlob *dout = (CBCBlob *) malloc(sizeof(CBCBlob));
+    dout->length = sk->x + payload->x;
     return dout;
 }
 
@@ -208,16 +207,7 @@ rsaSetup(char *publicKeyPemFile)
 }
 
 void
-rsaDisplay(RSAOutput *output)
-{
-    for (size_t i = 0; i < output->length; i++) {
-        printf("%x", output->payload[i]);
-    }
-    printf("\n");
-}
-
-void
-rsaDisplayCiphertext(RSAEncryptedPayload *output)
+blobDisplay(CBCBlob *output)
 {
     for (size_t i = 0; i < output->length; i++) {
         printf("%x", output->payload[i]);
@@ -276,10 +266,10 @@ rsaCreatePublicIndex(RSAEncryptionScheme *scheme)
     return index;
 }
 
-RSAInput *
+CBCBlob *
 rsaCreateInput(size_t length, uint8_t input[length])
 {
-    RSAInput *rsaInput = (RSAInput *) malloc(sizeof(RSAInput));
+    CBCBlob *rsaInput = (CBCBlob *) malloc(sizeof(CBCBlob));
     rsaInput->length = length;
     rsaInput->payload = (uint8_t *) malloc(length);
     memcpy(rsaInput->payload, input, length);
@@ -294,10 +284,10 @@ rsaKeyGen(RSAEncryptionScheme *scheme)
     return sk;
 }
 
-RSAEncryptedPayload *
-rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAInput *input)
+RSACiphertext *
+rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBlob *input)
 {
-    RSAEncryptedPayload *ct = (RSAEncryptedPayload *) malloc(sizeof(RSAEncryptedPayload));
+    RSACiphertext *ct = (RSACiphertext *) malloc(sizeof(RSACiphertext));
 
     size_t size = RSA_size(params->publicRSA);
     ct->length = size;
@@ -310,10 +300,10 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const RSAIn
     return ct;
 }
 
-RSAOutput *
-rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSAEncryptedPayload *payload)
+CBCBlob *
+rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload)
 {
-    RSAOutput *pt = (RSAOutput *) malloc(sizeof(RSAOutput));
+    CBCBlob *pt = (CBCBlob *) malloc(sizeof(CBCBlob));
 
     size_t size = RSA_size(sk->privateRSA);
     pt->length = size;
@@ -451,10 +441,10 @@ bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index)
     return secretKey;
 }
 
-BEBGWEncryptedPayload *
-bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const BEBGWInput *input)
+BEBGWCiphertext *
+bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const CBCBlob *input)
 {
-    BEBGWEncryptedPayload *ct = (BEBGWEncryptedPayload *) malloc(sizeof(BEBGWEncryptedPayload));
+    BEBGWCiphertext *ct = (BEBGWCiphertext *) malloc(sizeof(BEBGWCiphertext));
 
     element_t t;
     element_init_Zr(t, params->pairing);
@@ -482,8 +472,8 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const
     return ct;
 }
 
-BEBGWOutput *
-bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWEncryptedPayload *ciphertext)
+CBCBlob *
+bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphertext *ciphertext)
 {
     element_t temp;
     element_t temp2;
@@ -571,28 +561,12 @@ cbcSecretKey_Create(void *instance)
     return sk;
 }
 
-CBCInput *
-cbcInput_Create(void *instance)
+CBCCiphertext *
+cbcCiphertext_Create(void *instance)
 {
-    CBCInput *input = (CBCInput *) malloc(sizeof(CBCInput));
-    input->instance = instance;
-    return input;
-}
-
-CBCEncryptedPayload *
-cbcEncryptedPayload_Create(void *instance)
-{
-    CBCEncryptedPayload *payload = (CBCEncryptedPayload *) malloc(sizeof(CBCEncryptedPayload));
+    CBCCiphertext *payload = (CBCCiphertext *) malloc(sizeof(CBCCiphertext));
     payload->instance = instance;
     return payload;
-}
-
-CBCOutput *
-cbcOutput_Create(void *instance)
-{
-    CBCOutput *output = (CBCOutput *) malloc(sizeof(CBCOutput));
-    output->instance = instance;
-    return output;
 }
 
 CBCPublicIndex *
@@ -615,14 +589,14 @@ cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey,
     return (scheme->interface->GeneratePrivateKey(scheme->instance, masterKey->instance, index->instance));
 }
 
-CBCEncryptedPayload *
+CBCCiphertext *
 cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input)
 {
     return (scheme->interface->Encrypt(scheme->instance, params->instance, input->instance));
 }
 
 CBCOutput *
-cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCEncryptedPayload *encryptedPayload)
+cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *encryptedPayload)
 {
     return (scheme->interface->Decrypt(scheme->instance, secretKey->instance, encryptedPayload->instance));
 }
