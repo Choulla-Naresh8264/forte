@@ -34,12 +34,12 @@ main(int argc, char** argv)
 	payload[1] = 0xFF;
 
 	CBCBlob *input = rsaCreateInput(length, payload);
-	RSAEncryptedPayload *ciphertext = rsaEncrypt(scheme, params, input);
+	RSACiphertext *ciphertext = rsaEncrypt(scheme, params, input);
 	blobDisplay(ciphertext);
 	CBCBlob *output = rsaDecrypt(scheme, secretKey, ciphertext);
 
 	free(payload);
-	rsaDisplay(output);
+	blobDisplay(output);
 
 	return 0;
 }

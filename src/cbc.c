@@ -103,7 +103,7 @@ struct cbc_ciphertext_bebgw {
     element_t C1;
 
     // The actual encrypted data
-    cbc_blob payload;
+    CBCBlob payload;
 };
 
 struct cbc_encryption_scheme {
@@ -112,6 +112,7 @@ struct cbc_encryption_scheme {
 };
 
 struct cbc_encryption_scheme_dummy {
+    int x;
     DummyParameters *params;
     DummyMasterKey *msk;
 };
@@ -480,7 +481,7 @@ bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphe
     element_t di_de;
     element_t temp3;
 
-    BEBGWOutput *plaintext = (BEBGWOutput *) malloc(sizeof(BEBGWOutput));
+    CBCBlob *plaintext = (CBCBlob *) malloc(sizeof(CBCBlob));
 
     element_init(temp, params->pairing->GT);
     element_init(temp2, params->pairing->GT);
@@ -590,12 +591,12 @@ cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey,
 }
 
 CBCCiphertext *
-cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCInput *input)
+cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCBlob *input)
 {
-    return (scheme->interface->Encrypt(scheme->instance, params->instance, input->instance));
+    return (scheme->interface->Encrypt(scheme->instance, params->instance, input));
 }
 
-CBCOutput *
+CBCBlob *
 cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *encryptedPayload)
 {
     return (scheme->interface->Decrypt(scheme->instance, secretKey->instance, encryptedPayload->instance));
