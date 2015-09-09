@@ -142,6 +142,7 @@ BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParamete
 CBCBlob *bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphertext *payload);
 
 void blobDisplay(CBCBlob *output);
+void rsaDisplay(RSACiphertext *ct);
 
 extern CBCEncryptionSchemeInterface *CBCEncryptionSchemeDummy;
 
