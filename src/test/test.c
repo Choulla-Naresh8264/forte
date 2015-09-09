@@ -35,7 +35,7 @@ main(int argc, char** argv)
 
 	CBCBlob *input = rsaCreateInput(length, payload);
 	RSACiphertext *ciphertext = rsaEncrypt(scheme, params, input);
-	blobDisplay(ciphertext);
+	rsaDisplay(ciphertext);
 	CBCBlob *output = rsaDecrypt(scheme, secretKey, ciphertext);
 
 	free(payload);
