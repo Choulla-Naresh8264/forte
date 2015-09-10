@@ -59,7 +59,10 @@
           <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span>Functional Encryption</a>
         </h3>
         <p>
-          $$(pp, msk) \Leftarrow setup(1^{\lambda})$$
+          $$(pp, msk) \leftarrow setup(1^{\lambda})$$
+          $$sk \leftarrow keygen(msk, k)$$
+          $$c \leftarrow enc(pp, x)$$
+          $$y \leftarrow dec(sk, c)$$
         </p>
 
         <h3>
