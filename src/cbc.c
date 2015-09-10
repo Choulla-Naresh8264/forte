@@ -149,8 +149,6 @@ encrypt(CBCBlob *input, uint8_t *key, uint8_t *iv)
         return NULL;
     }
 
-    printf("here1\n");
-
     int len;
     int ciphertext_len;
     CBCBlob *ciphertext = (CBCBlob *) malloc(sizeof(CBCBlob));
@@ -163,8 +161,6 @@ encrypt(CBCBlob *input, uint8_t *key, uint8_t *iv)
     }
     ciphertext->length = len;
 
-    printf("here2\n");
-
     result = EVP_EncryptFinal_ex(ctx, ciphertext->payload + len, &len);
     if (result != 1) {
         // TODO: throw exception
@@ -172,15 +168,13 @@ encrypt(CBCBlob *input, uint8_t *key, uint8_t *iv)
     }
     ciphertext->length += len;
 
-    printf("here3\n");
-
     EVP_CIPHER_CTX_free(ctx);
 
     return ciphertext;
 }
 
 CBCBlob *
-decrypt(CBCBlob *ciphertext, unsigned char *key, unsigned char *iv)
+decrypt(CBCBlob *ciphertext, uint8_t *key, uint8_t *iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
@@ -195,6 +189,7 @@ decrypt(CBCBlob *ciphertext, unsigned char *key, unsigned char *iv)
     }
 
     CBCBlob *plaintext = (CBCBlob *) malloc(sizeof(CBCBlob));
+    plaintext->payload = (uint8_t *) malloc(ciphertext->length);
 
     int len;
     int plaintext_len;
@@ -385,11 +380,9 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBl
     RSACiphertext *ct = (RSACiphertext *) malloc(sizeof(RSACiphertext));
 
     size_t size = RSA_size(params->publicRSA) / 2;
-    printf("size = %d\n", size);
 
     // Create the symmetric key to be encrypted by RSA
     ct->keyBlob = (CBCBlob *) malloc(sizeof(CBCBlob));
-    ct->keyBlob->length = size;
     uint8_t *symmetricKey = (uint8_t *) malloc(size);
     ct->keyBlob->payload = (uint8_t *) malloc(size * 2);
     ct->iv = (uint8_t *) malloc(size);
@@ -399,12 +392,8 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBl
         return NULL;
     }
 
-    printf("so far\n");
-
     // encrypt the input with the symmetric key and IV
     CBCBlob *ciphertext = encrypt(input, symmetricKey, ct->iv);
-
-    printf("ct done\n");
 
     // Allocate space for the ciphertext and store it
     ct->dataBlob = (CBCBlob *) malloc(sizeof(CBCBlob));
@@ -412,18 +401,15 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBl
     ct->dataBlob->payload = (uint8_t *) malloc(ciphertext->length);
     memcpy(ct->dataBlob->payload, ciphertext->payload, ciphertext->length);
 
-    printf("onto rsa\n");
-
     // encrypt the symmetric key with RSA
     int padding = RSA_PKCS1_PADDING;
-    result = RSA_public_encrypt(size, symmetricKey, ct->keyBlob->payload, params->publicRSA, padding);
-    if (result == -1) {
+    int bytesEncrypted = RSA_public_encrypt(size, symmetricKey, ct->keyBlob->payload, params->publicRSA, padding);
+    if (bytesEncrypted == -1) {
         // TODO: free
         printf("failed: %lu\n", ERR_get_error());
         return NULL;
     }
-
-    printf("done mang\n");
+    ct->keyBlob->length = bytesEncrypted;
 
     return ct;
 }
@@ -438,16 +424,16 @@ rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *p
     pt->payload = (uint8_t *) malloc(size);
     memset(pt->payload, 0, size);
 
-    uint8_t *key = (uint8_t *) malloc(sizeof(size));
+    uint8_t *key = (uint8_t *) malloc(size * 2);
 
     int padding = RSA_PKCS1_PADDING;
     int result = RSA_private_decrypt(payload->keyBlob->length, payload->keyBlob->payload, key, sk->privateRSA, padding);
-    // if (result == -1) {
+    if (result == -1) {
         printf("Failure %lu\n", ERR_get_error());
         return NULL;
-    // }
+    }
 
-    CBCBlob *plaintext = decrypt(payload, key, payload->iv);
+    CBCBlob *plaintext = decrypt(payload->dataBlob, key, payload->iv);
 
     return plaintext;
 }
