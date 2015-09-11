@@ -42,13 +42,14 @@ testBEBGW(char *pairFileName, int groupSize)
 	payload[0] = 0xFF;
 	payload[1] = 0xFF;
 
-	CBCBlob *input = createInput(length, payload); 
+	CBCBlob *input = createInput(length, payload);
 	blobDisplay(input);
 
 	int members[4] = {1,2,3,4};
 	BEBGWCiphertext *ciphertext = bebgwEncrypt(scheme, params, members, 4, input);
 
-	CBCBlob *output = bebgwDecrypt(scheme, secretKey, ciphertext);
+	CBCBlob *output = bebgwDecrypt(params, secretKey, ciphertext);
+
 	blobDisplay(output);
 }
 
