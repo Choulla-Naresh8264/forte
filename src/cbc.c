@@ -105,7 +105,8 @@ struct cbc_ciphertext_bebgw {
     element_t C1;
 
     // The actual encrypted data
-    CBCBlob payload;
+    CBCBlob *payload;
+    CBCBlob *iv;
 };
 
 struct cbc_encryption_scheme {
@@ -391,6 +392,11 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBl
         // TODO: free
         return NULL;
     }
+    result = RAND_bytes(ct->iv, size);
+    if (result != 1) {
+        // TODO: free
+        return NULL;
+    }
 
     // encrypt the input with the symmetric key and IV
     CBCBlob *ciphertext = encrypt(input, symmetricKey, ct->iv);
@@ -589,7 +595,29 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const
     element_pow_zn(ct->C1, ct->C1, t);
     element_clear(t);
 
-    // TODO: encrypt payload of CT with symmetric key "key"
+    // Encrypt the input with the symmetric key derived from the "key" element_t
+    size_t byteCount = element_length_in_bytes(key);
+    uint8_t *keyBytes = (uint8_t *) malloc(byteCount);
+    int result = element_to_bytes(keyBytes, key);
+    if (result != byteCount) {
+        // TODO: error, free
+        return NULL;
+    }
+    uint8_t *symmetricKey = (uint8_t *) malloc(128);
+    memcpy(symmetricKey, keyBytes, 128);
+
+    ct->iv = (CBCBlob *) malloc(sizeof(CBCBlob));
+    ct->iv->length = 128;
+    ct->iv->payload = (uint8_t *) malloc(ct->iv->length);
+    result = RAND_bytes(ct->iv->payload, ct->iv->length);
+    if (result != 1) {
+        // TODO: free
+        return NULL;
+    }
+
+    // encrypt the input with the symmetric key and IV
+    CBCBlob *ciphertext = encrypt(input, symmetricKey, ct->iv->payload);
+    ct->payload = ciphertext;
 
     return ct;
 }
@@ -601,8 +629,6 @@ bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphe
     element_t temp2;
     element_t di_de;
     element_t temp3;
-
-    CBCBlob *plaintext = (CBCBlob *) malloc(sizeof(CBCBlob));
 
     element_init(temp, params->pairing->GT);
     element_init(temp2, params->pairing->GT);
@@ -627,7 +653,19 @@ bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphe
     // Multiply the numerator by the inverted denominator
     element_mul(key, temp, temp3);
 
-    // TODO: we now have the key to decrypt the ciphertext
+    // We now have the key to decrypt the ciphertext
+    size_t byteCount = element_length_in_bytes(key);
+    uint8_t *keyBytes = (uint8_t *) malloc(byteCount);
+    int result = element_to_bytes(keyBytes, key);
+    if (result != byteCount) {
+        // TODO: error, free
+        return NULL;
+    }
+    uint8_t *symmetricKey = (uint8_t *) malloc(128);
+    memcpy(symmetricKey, keyBytes, 128);
+
+    // encrypt the input with the symmetric key and IV
+    CBCBlob *plaintext = decrypt(ciphertext->payload, symmetricKey, ciphertext->iv->payload);
 
     return plaintext;
 }
