@@ -121,12 +121,13 @@ DummySecretKey *dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey 
 DummyCiphertext *dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCBlob *input);
 CBCBlob *dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyCiphertext *payload);
 
+CBCBlob *createInput(size_t length, uint8_t input[length]);
+
 // rsa implementation functions
 RSAEncryptionScheme *rsaCreate(char *publicKeyPemFile, char *privateKey);
 RSAParameters *rsaGetParameters(RSAEncryptionScheme *scheme);
 RSAMasterKey *rsaGetMasterKey(RSAEncryptionScheme *scheme);
 RSAPublicIndex *rsaCreatePublicIndex(RSAEncryptionScheme *scheme);
-CBCBlob *rsaCreateInput(size_t length, uint8_t input[length]);
 RSASecretKey *rsaKeyGen(RSAEncryptionScheme *scheme);
 RSACiphertext *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBlob *input);
 CBCBlob *rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload);
@@ -138,8 +139,8 @@ BEBGWMasterKey *bebgwGetMasterKey(BEBGWEncryptionScheme *scheme);
 BEBGWPublicIndex *bebgwCreatePublicIndex(BEBGWEncryptionScheme *scheme);
 CBCBlob *bebgwCreateInput(size_t length, uint8_t input[length]);
 BEBGWSecretKey *bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index);
-BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, const BEBGWParameters *params, const CBCBlob *input);
-CBCBlob *bebgwDecrypt(BEBGWParameters *params, const BEBGWSecretKey *sk, const BEBGWCiphertext *payload);
+BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, CBCBlob *input);
+CBCBlob *bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *payload);
 
 void blobDisplay(CBCBlob *output);
 void rsaDisplay(RSACiphertext *ct);
