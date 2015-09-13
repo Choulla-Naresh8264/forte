@@ -10,8 +10,6 @@ testRSA(char *public, char *private)
 	RSASecretKey *secretKey = rsaKeyGen(scheme);
 	RSAParameters *params = rsaGetParameters(scheme);
 
-	// TODO: note that the payload cannot exceed the size of the key...
-
 	uint8_t *payload = (uint8_t *) malloc(1024 / 8);
 	memset(payload, 0, 1024 / 8);
 	size_t length = 128;
@@ -72,7 +70,6 @@ main(int argc, char** argv)
 	// CBCMasterKey *msk2 = cbcGenerateMasterKey(encrScheme, cbcParameters_Create(params));
 
 	testRSA("./data/public.pem", "./data/private.pem");
-
 	testBEBGW("./data/d201.param", 64);
 
 	return 0;

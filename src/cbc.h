@@ -68,26 +68,11 @@ typedef struct cbc_public_index_bebgw BEBGWPublicIndex;
 struct cbc_ciphertext_bebgw;
 typedef struct cbc_ciphertext_bebgw BEBGWCiphertext;
 
-typedef enum {
-	CBCScheme_RSA,
-	CBCScheme_BE,
-	CBCScheme_Dummy,
-	CBCScheme_Invalid
-} CBCSchemeType;
-
-struct cbc_encoded_value;
-typedef struct cbc_encoded_value CBCEncodedValue;
-
-typedef struct cbc_encoder_interface {
-	CBCEncodedValue *(*Encode)(void *instance);
-	void *(*Decode)(CBCEncodedValue *encodedValue);
-} CBCEncoder;
-
 typedef struct cbc_encryption_scheme_interface {
 	void *(*GenerateMasterKey)(void *scheme, const void *parameters);
 	void *(*GeneratePrivateKey)(void *scheme, const void *masterKey, const void *index);
-	void *(*Encrypt)(void *scheme, const void *params, const void *input);
-	void *(*Decrypt)(void *scheme, const void *secretKey, const void *encryptedPayload);
+	void *(*Encrypt)(void *scheme, const void *params, const void *input, const void *metadata);
+	void *(*Decrypt)(void *scheme, const void *secretKey, const void *ciphertext);
 } CBCEncryptionSchemeInterface;
 
 typedef struct cbc_signature_scheme_interface {
@@ -108,20 +93,16 @@ CBCPublicIndex *cbcPublicIndex_Create(void *instance);
 CBCEncryptionScheme *cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface);
 CBCMasterKey *cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters);
 CBCSecretKey *cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-CBCCiphertext *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCBlob *input);
-CBCBlob *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *encryptedPayload);
+CBCCiphertext *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCBlob *plaintext);
+CBCBlob *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *ciphertext);
 
 // implementation functions
 DummyEncryptionScheme *dummyCreate(int x);
-// DummyParameters *dummySetup(int initial);
-// DummyMasterKey *dummyCreateMasterKey(DummyEncryptionScheme *scheme, const DummyParameters *parameters);
 DummyPublicIndex *dummyCreatePublicIndex(int val);
 CBCBlob *dummyCreateInput(int val);
 DummySecretKey *dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const DummyPublicIndex *index);
 DummyCiphertext *dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCBlob *input);
 CBCBlob *dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyCiphertext *payload);
-
-CBCBlob *createInput(size_t length, uint8_t input[length]);
 
 // rsa implementation functions
 RSAEncryptionScheme *rsaCreate(char *publicKeyPemFile, char *privateKey);
@@ -142,6 +123,8 @@ BEBGWSecretKey *bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index);
 BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, CBCBlob *input);
 CBCBlob *bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *payload);
 
+// Utility
+CBCBlob *createInput(size_t length, uint8_t input[length]);
 void blobDisplay(CBCBlob *output);
 void rsaDisplay(RSACiphertext *ct);
 

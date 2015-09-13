@@ -208,7 +208,7 @@ decrypt(CBCBlob *ciphertext, uint8_t *key, uint8_t *iv)
     return plaintext;
 }
 
-CBCBloc *
+CBCBlob *
 cbcBlob_CreateEmpty(size_t size)
 {
     return NULL;
