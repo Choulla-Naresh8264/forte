@@ -1,6 +1,19 @@
 #include "../cbc.h"
 
 void
+testDummy()
+{
+	DummyEncryptionScheme *scheme = dummyCreate(1);
+	DummyParameters *params = dummySetup(2);
+	DummyMasterKey *msk = dummyCreateMasterKey(scheme, params);
+	DummyPublicIndex *index = dummyCreatePublicIndex(3);
+	DummyInput *input = dummyCreateInput(4);
+	DummySecretKey *secretKey = dummyKeyGen(scheme, msk, index);
+	DummyEncryptedPayload *payload = dummyEncrypt(scheme, params, input);
+	DummyOutput *output = dummyDecrypt(scheme, secretKey, payload);
+}
+
+void
 testRSA(char *public, char *private)
 {
 	RSAEncryptionScheme *scheme = rsaCreate(public, private);
@@ -16,7 +29,7 @@ testRSA(char *public, char *private)
 	payload[0] = 0xFF;
 	payload[1] = 0xFF;
 
-	CBCBlob *input = createInput(length, payload);
+	CBCBlob *input = createBlob(length, payload);
 	RSACiphertext *ciphertext = rsaEncrypt(scheme, params, input);
 	rsaDisplay(ciphertext);
 	CBCBlob *output = rsaDecrypt(scheme, secretKey, ciphertext);
@@ -40,7 +53,7 @@ testBEBGW(char *pairFileName, int groupSize)
 	payload[0] = 0xFF;
 	payload[1] = 0xFF;
 
-	CBCBlob *input = createInput(length, payload);
+	CBCBlob *input = createBlob(length, payload);
 	blobDisplay(input);
 
 	int members[4] = {1,2,3,4};
@@ -54,21 +67,7 @@ testBEBGW(char *pairFileName, int groupSize)
 int
 main(int argc, char** argv)
 {
-	// Step 1: use concrete options
-	// DummyEncryptionScheme *scheme = dummyCreate(1);
-	// DummyParameters *params = dummySetup(2);
-	// DummyMasterKey *msk = dummyCreateMasterKey(scheme, params);
-	// DummyPublicIndex *index = dummyCreatePublicIndex(3);
-	// DummyInput *input = dummyCreateInput(4);
-	// DummySecretKey *secretKey = dummyKeyGen(scheme, msk, index);
-	// DummyEncryptedPayload *payload = dummyEncrypt(scheme, params, input);
-	// DummyOutput *output = dummyDecrypt(scheme, secretKey, payload);
-
-	// Create a generic type using the concrete instances and the right interface
-	// Step 2: Create generic instance and then use the base operations
-	// CBCEncryptionScheme *encrScheme = cbcEncryptionScheme(scheme, CBCEncryptionSchemeDummy);
-	// CBCMasterKey *msk2 = cbcGenerateMasterKey(encrScheme, cbcParameters_Create(params));
-
+	testDummy();
 	testRSA("./data/public.pem", "./data/private.pem");
 	testBEBGW("./data/d201.param", 64);
 

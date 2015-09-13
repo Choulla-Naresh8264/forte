@@ -124,7 +124,7 @@ BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *pa
 CBCBlob *bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *payload);
 
 // Utility
-CBCBlob *createInput(size_t length, uint8_t input[length]);
+CBCBlob *createBlob(size_t length, uint8_t input[length]);
 void blobDisplay(CBCBlob *output);
 void rsaDisplay(RSACiphertext *ct);
 

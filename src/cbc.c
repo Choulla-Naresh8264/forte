@@ -358,7 +358,7 @@ rsaCreatePublicIndex(RSAEncryptionScheme *scheme)
 }
 
 CBCBlob *
-createInput(size_t length, uint8_t input[length])
+createBlob(size_t length, uint8_t input[length])
 {
     CBCBlob *blob = (CBCBlob *) malloc(sizeof(CBCBlob));
     blob->length = length;
