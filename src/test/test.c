@@ -1,17 +1,17 @@
 #include "../cbc.h"
 
-void
-testDummy()
-{
-	DummyEncryptionScheme *scheme = dummyCreate(1);
-	DummyParameters *params = dummySetup(2);
-	DummyMasterKey *msk = dummyCreateMasterKey(scheme, params);
-	DummyPublicIndex *index = dummyCreatePublicIndex(3);
-	DummyInput *input = dummyCreateInput(4);
-	DummySecretKey *secretKey = dummyKeyGen(scheme, msk, index);
-	DummyEncryptedPayload *payload = dummyEncrypt(scheme, params, input);
-	DummyOutput *output = dummyDecrypt(scheme, secretKey, payload);
-}
+// void
+// testDummy()
+// {
+// 	DummyEncryptionScheme *scheme = dummyCreate(1);
+// 	DummyParameters *params = dummySetup(2);
+// 	DummyMasterKey *msk = dummyCreateMasterKey(scheme, params);
+// 	DummyPublicIndex *index = dummyCreatePublicIndex(3);
+// 	DummyInput *input = dummyCreateInput(4);
+// 	DummySecretKey *secretKey = dummyKeyGen(scheme, msk, index);
+// 	DummyEncryptedPayload *payload = dummyEncrypt(scheme, params, input);
+// 	DummyOutput *output = dummyDecrypt(scheme, secretKey, payload);
+// }
 
 void
 testRSA(char *public, char *private)
@@ -67,7 +67,7 @@ testBEBGW(char *pairFileName, int groupSize)
 int
 main(int argc, char** argv)
 {
-	testDummy();
+	// testDummy();
 	testRSA("./data/public.pem", "./data/private.pem");
 	testBEBGW("./data/d201.param", 64);
 
