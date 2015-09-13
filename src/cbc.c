@@ -462,7 +462,6 @@ bebgwSetup(size_t groupSize, char *pairFileName)
     if (!count) {
         return NULL;
     }
-    printf("count = %d\n", count);
     if (pairing_init_set_buf(params->pairing, s, count)) {
         printf("pairing init failed\n");
         return NULL;
@@ -602,40 +601,28 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
     ct->memberSet = (int *) malloc(sizeof(int) * setLength);
     for (int i = 0; i < setLength; i++) {
         ct->memberSet[i] = recipientSet[i];
-        printf("saving target %d\n", ct->memberSet[i]);
     }
 
     element_t t;
     element_init_Zr(t, params->pairing);
     element_random(t);
 
-    printf("here1\n");
-
     element_t key; // the symmetric encryption key
     element_init(key, params->pairing->GT);
     element_init(ct->C0, params->pairing->G2);
     element_init(ct->C1, params->pairing->G1);
 
-    printf("here1\n");
-
     // Compute K
     element_pairing(key, params->gs[params->groupSize - 1], params->hs[0]);
     element_pow_zn(key, key, t);
 
-    printf("here2\n");
-
     // Compute C0
     element_pow_zn(ct->C0, params->h, t);
 
-    printf("here3\n");
-
     // Compute C1
     element_mul(ct->C1, scheme->msk->publicKey, encryptionProduct);
-    printf("here3.5\n");
     element_pow_zn(ct->C1, ct->C1, t);
     element_clear(t);
-
-    printf("here4\n");
 
     element_clear(encryptionProduct);
 
@@ -643,7 +630,6 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
     size_t byteCount = element_length_in_bytes(key);
     uint8_t *keyBytes = (uint8_t *) malloc(byteCount);
     int result = element_to_bytes(keyBytes, key);
-    printf("byte count = %d\n", byteCount);
     if (result != byteCount) {
         // TODO: error, free
         return NULL;
@@ -666,12 +652,8 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
         return NULL;
     }
 
-    printf("and here we go %d\n", input->length );
-
     // encrypt the input with the symmetric key and IV
     ct->payload = encrypt(input, symmetricKey, ct->iv->payload);
-
-    printf("donezo\n");
 
     return ct;
 }
@@ -679,12 +661,8 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
 CBCBlob *
 bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphertext)
 {
-    printf("start decrypt\n");
-
     element_t decryptionProduct;
     element_init(decryptionProduct, params->pairing->G1);
-
-    printf("temp init\n");
 
     element_t temp;
     element_t temp2;
@@ -692,23 +670,16 @@ bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphe
     element_t temp3;
 
     element_init(temp, params->pairing->GT);
-    printf("s1\n");
     element_init(temp2, params->pairing->GT);
-    printf("s2\n");
     element_init(di_de, params->pairing->G1);
-    printf("s3\n");
     element_init(temp3, params->pairing->GT);
-    printf("s4\n");
 
     int n = params->groupSize;
     int memberId;
     int already_set = 0;
 
-    printf("starting vec\n");
-
     for(int i = 0; i < ciphertext->numMembers; i++) {
         memberId = ciphertext->memberSet[i];
-        printf("member = %d\n", memberId);
         if(memberId < 1 || memberId > n) {
             printf("element %d was outside the range of valid users\n", memberId);
             printf("only give me valid values.  i die.\n");
@@ -719,8 +690,6 @@ bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphe
             continue;
         }
 
-        printf("keep going\n");
-
         if (!already_set) {
             element_set(decryptionProduct, params->gs[(n - memberId) + sk->index]);
             already_set = 1;
@@ -729,24 +698,14 @@ bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphe
         }
     }
 
-    printf("vectors set\n");
-
-    printf("init\n");
-
     // Generate the numerator
     element_pairing(temp, ciphertext->C1, sk->h_i);
-
-    printf("start\n");
 
     // G1 element in denom
     element_mul(di_de, sk->g_i_gamma, decryptionProduct);
 
-    printf("okay mang\n");
-
     // Generate the denominator
     element_pairing(temp2, di_de, ciphertext->C0);
-
-    printf("okay.\n");
 
     // Invert the denominator
     element_invert(temp3, temp2);
@@ -767,8 +726,6 @@ bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphe
     }
     uint8_t *symmetricKey = (uint8_t *) malloc(32);
     memcpy(symmetricKey, keyBytes, 32);
-
-    printf("decrypting\n");
 
     // encrypt the input with the symmetric key and IV
     CBCBlob *plaintext = decrypt(ciphertext->payload, symmetricKey, ciphertext->iv->payload);
@@ -856,9 +813,9 @@ cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey,
 }
 
 CBCCiphertext *
-cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCBlob *input)
+cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCBlob *input, const void *metadata)
 {
-    return (scheme->interface->Encrypt(scheme->instance, params->instance, input));
+    return (scheme->interface->Encrypt(scheme->instance, params->instance, input, metadata));
 }
 
 CBCBlob *
