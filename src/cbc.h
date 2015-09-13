@@ -16,7 +16,6 @@ typedef struct cbc_encryption_scheme_rsa RSAEncryptionScheme;
 struct cbc_encryption_scheme_bebgw;
 typedef struct cbc_encryption_scheme_bebgw BEBGWEncryptionScheme;
 
-
 // General
 struct cbc_parameters;
 struct cbc_master_key;
