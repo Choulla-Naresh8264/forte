@@ -17,9 +17,9 @@ typedef struct cbc_ciphertext_dummy DummyCiphertext;
 
 DummyEncryptionScheme *dummyCreate(int x);
 DummyPublicIndex *dummyCreatePublicIndex(int val);
-CBCBlob *dummyCreateInput(int val);
+CBCString *dummyCreateInput(int val);
 DummySecretKey *dummyKeyGen(DummyEncryptionScheme *scheme, const DummyMasterKey *msk, const DummyPublicIndex *index);
-DummyCiphertext *dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCBlob *input);
-CBCBlob *dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyCiphertext *payload);
+DummyCiphertext *dummyEncrypt(DummyEncryptionScheme *scheme, const DummyParameters *params, const CBCString *input);
+CBCString *dummyDecrypt(DummyEncryptionScheme *scheme, const DummySecretKey *sk, const DummyCiphertext *payload);
 
 #endif // libcbc_encrypter_dummy_h_

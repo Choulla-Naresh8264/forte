@@ -1,5 +1,34 @@
 #include <cbc/crypto/primitives/encryption/cbc_encrypter.h>
 #include <cbc/crypto/primitives/encryption/internal/cbc_rsa.h>
+#include <cbc/crypto/string/cbc_string.h>
+
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
+#include <openssl/rand.h>
+
+struct cbc_parameters_rsa {
+    RSA *publicRSA;
+};
+struct cbc_master_key_rsa {
+    RSA *publicRSA;
+    RSA *privateRSA;
+};
+struct cbc_secret_key_rsa {
+    RSA *privateRSA;
+};
+struct cbc_public_index_rsa {
+    RSA *publicRSA;
+};
+struct cbc_ciphertext_rsa {
+    CBCString *keyBlob;
+    CBCString *dataBlob;
+    uint8_t *iv;
+};
+
+struct cbc_encryption_scheme_rsa {
+    RSAParameters *params;
+    RSAMasterKey *msk;
+};
 
 RSAParameters *
 rsaSetup(char *publicKeyPemFile)
@@ -145,3 +174,10 @@ rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *p
 
     return plaintext;
 }
+
+CBCEncryptionSchemeInterface *CBCEncryptionSchemeRSA = &(CBCEncryptionSchemeInterface) {
+    .GenerateMasterKey = (void * (*)(void *scheme, const void *)) rsaCreateMasterKey,
+    .GeneratePrivateKey = (void * (*)(void *scheme, const void *, const void *)) rsaKeyGen,
+    .Encrypt = (void * (*)(void *scheme, const void *, const void *)) rsaEncrypt,
+    .Decrypt = (void * (*)(void *scheme, const void *, const void *)) rsaDecrypt,
+};

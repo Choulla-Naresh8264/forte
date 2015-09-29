@@ -22,7 +22,7 @@ RSAParameters *rsaGetParameters(RSAEncryptionScheme *scheme);
 RSAMasterKey *rsaGetMasterKey(RSAEncryptionScheme *scheme);
 RSAPublicIndex *rsaCreatePublicIndex(RSAEncryptionScheme *scheme);
 RSASecretKey *rsaKeyGen(RSAEncryptionScheme *scheme);
-RSACiphertext *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCBlob *input);
+RSACiphertext *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCString *input);
 CBCString *rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload);
 
 #endif // libcbc_encrypter_rsa_h

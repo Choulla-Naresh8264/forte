@@ -19,9 +19,9 @@ BEBGWEncryptionScheme *bebgwCreate(size_t groupSize, char *pairFileName);
 BEBGWParameters *bebgwGetParameters(BEBGWEncryptionScheme *scheme);
 BEBGWMasterKey *bebgwGetMasterKey(BEBGWEncryptionScheme *scheme);
 BEBGWPublicIndex *bebgwCreatePublicIndex(BEBGWEncryptionScheme *scheme);
-CBCBlob *bebgwCreateInput(size_t length, uint8_t input[length]);
+CBCString *bebgwCreateInput(size_t length, uint8_t input[length]);
 BEBGWSecretKey *bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index);
-BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, CBCBlob *input);
-CBCBlob *bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *payload);
+BEBGWCiphertext *bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, CBCString *input);
+CBCString *bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *payload);
 
 #endif // libcbc_encrypter_bebgw_h
