@@ -68,21 +68,21 @@
         </p>
 
         <p>
-            Technically, given some <em>functionality</em> $$F(\cdot,\cdot)$$, modeled
+            Technically, given some <em>functionality</em> $F(\cdot,\cdot)$, modeled
             as a Turing Machine, an authority in possession of a master secret key can
-            generate a ecret key $$sk_k$$ which allows the holder to compute $$F(sk_k, \cdot)$$
+            generate a ecret key $sk_k$ which allows the holder to compute $F(sk_k, \cdot)$
             on encrypted data. In other words, functional encryption enables the
-            holder of $$sk_k$$ to compute $$F(sk_k, x)$$ given some encrypted form of $$x$$ [1].
+            holder of $sk_k$ to compute $F(sk_k, x)$ given some encrypted form of $x$ [1].
         </p>
 
         <p>
             This definition is quite flexible and does not place any restrictions on
             the functionalities. One could, for example, implement access control
-            backed by this primitive. This could be done by specifying $$x$$ as
+            backed by this primitive. This could be done by specifying $x$ as
             a tuple consisting of an authorized user's identity (or any other
             complicated access control structure) and an encrypted message. The
             identity is typically called an index, and it is usually public.
-            The functionality could then check that the secret key $$sk_k$$ is associated
+            The functionality could then check that the secret key $sk_k$ is associated
             with an authorized user in the tuple and, if so, decrypt the message.
         </p>
 
@@ -116,10 +116,10 @@
         </p>
 
         <p>
-            where $$pp$$ are the public parameters, $$msk$$ is a master secret key,
-            $$sk_k$$ is a secret key for user $$k$$, $$x$$ and $$c$$ are the plaintext
-            message and its encrypted form, and $$y$$ is the output of the
-            functionality $$F(sk_k, x)$$ computed.
+            where $pp$ are the public parameters, $msk$ is a master secret key,
+            $sk_k$ is a secret key for user $k$, $x$ and $c$ are the plaintext
+            message and its encrypted form, and $y$ is the output of the
+            functionality $F(sk_k, x)$ computed.
         </p>
 
         <p>
