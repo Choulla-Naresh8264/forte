@@ -15,7 +15,7 @@
       });
     </script>
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-    
+
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -41,11 +41,11 @@
           <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span>Overview</a>
         </h3>
         <p>
-          libcbc is an ongoing project to explore the different possible APIs and
+          libcbc is an ongoing project to explore the possible APIs and
           abstractions for a versatile, usable, and extensible cryptographic library.
-          The main focus is on functional encryption to support robust confidentiality
-          in a data- and content-centric world. It is also intended to support signature
-          schemes and symmetric-key primitives.
+          The main focus is on functional encryption primitives to support robust
+          confidentiality and privacy in a data- and content-centric world. It is also
+          intended to support signature schemes and symmetric-key primitives.
         </p>
 
         <h3>
@@ -58,11 +58,102 @@
         <h3>
           <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span>Functional Encryption</a>
         </h3>
+
         <p>
-          $$(pp, msk) \leftarrow setup(1^{\lambda})$$
-          $$sk \leftarrow keygen(msk, k)$$
-          $$c \leftarrow enc(pp, x)$$
-          $$y \leftarrow dec(sk, c)$$
+            According to [1], functional encryption "supports restricted secret keys that enable a key holder
+            to learn a specific function of encrypted data, but learn nothing else about the data." This is a
+            significant deviation from the standard view of encryption, wherein the goal was (a) to send a specific
+            message to some party holding the appropriate decryption secret and (b) access to the decrypted
+            data was <em>all or nothing</em>.
+        </p>
+
+        <p>
+            Technically, given some <em>functionality</em> $$F(\cdot,\cdot)$$, modeled
+            as a Turing Machine, an authority in possession of a master secret key can
+            generate a ecret key $$sk_k$$ which allows the holder to compute $$F(sk_k, \cdot)$$
+            on encrypted data. In other words, functional encryption enables the
+            holder of $$sk_k$$ to compute $$F(sk_k, x)$$ given some encrypted form of $$x$$ [1].
+        </p>
+
+        <p>
+            This definition is quite flexible and does not place any restrictions on
+            the functionalities. One could, for example, implement access control
+            backed by this primitive. This could be done by specifying $$x$$ as
+            a tuple consisting of an authorized user's identity (or any other
+            complicated access control structure) and an encrypted message. The
+            identity is typically called an index, and it is usually public.
+            The functionality could then check that the secret key $$sk_k$$ is associated
+            with an authorized user in the tuple and, if so, decrypt the message.
+        </p>
+
+        <p>
+            There are many existing instances of functional encryption, including:
+            <ul>
+                <li>Standard public-key encryption</li>
+                <li>Predicate encryption [2,3]</li>
+                <li>Predicate encryption with a public index</li>
+                <li>Identity-based encryption (IBE) [4,5]</li>
+                <li>Attribute-based encryption (ABE) [6]</li>
+                <li>Key-Policy ABE [7]</li>
+                <li>Ciphertext-Policy ABE [8]</li>
+                <li>Anonymous Identity-Based Encryption [9]</li>
+                <li>Hidden Vector Encryption [2]</li>
+                <li>Inner Product Encryption [10]</li>
+            </ul>
+            Additional information about these specific instances, as well as more
+            references to relevant papers, can be found in [1].
+        </p>
+
+        <p>
+            Mathematically, functional encryption has the following syntax:
+        </p>
+
+        <p>
+            $$(pp, msk) \leftarrow setup(1^{\lambda})$$
+            $$sk_k \leftarrow keygen(msk, k)$$
+            $$c \leftarrow enc(pp, x)$$
+            $$y \leftarrow dec(sk, c)$$
+        </p>
+
+        <p>
+            where $$pp$$ are the public parameters, $$msk$$ is a master secret key,
+            $$sk_k$$ is a secret key for user $$k$$, $$x$$ and $$c$$ are the plaintext
+            message and its encrypted form, and $$y$$ is the output of the
+            functionality $$F(sk_k, x)$$ computed.
+        </p>
+
+        <p>
+            The goal of libcbc is to provide a generic and usable API for functional
+            encryption primitives that provides as much isolation to the application.
+        </p>
+
+        <p>
+            Below is a non-exhaustive list of references to functional encryption
+            instances. See [1] for more references.
+
+            <ul>
+                <li>[1] Dan Boneh, Amit Sahai, and Brent Waters. Functional Encryption: Definitions
+                    and Challenges. Theory of Cryptography. Springer Berlin Heidelberg, 2011. 253-273.</li>
+                <li>[2] Dan Boneh and Brent Waters. Conjunctive, subset, and range queries on encrypted data.
+                    In TCC, pages 535–554, 2007.</li>
+                <li>[3] Jonathan Katz, Amit Sahai, and Brent Waters. Predicate encryption supporting disjunctions,
+                    polynomial equations, and inner products. In EUROCRYPT, pages 146–162, 2008.</li>
+                <li>[4] Dan Boneh and Matthew K. Franklin. Identity-based encryption from the weil pairing. SIAM
+                    J. Comput., 32(3):586–615, 2003. extended abstract in Crypto 2001.</li>
+                <li>[5] Clifford Cocks. An identity based encryption scheme based on quadratic residues. In IMA Int.
+                    Conf., pages 360–363, 2001.</li>
+                <li>[6] Amit Sahai and Brent Waters. Fuzzy identity-based encryption. In EUROCRYPT, pages 457–
+                    473, 2005.</li>
+                <li>[7] Vipul Goyal, Omkant Pandey, Amit Sahai, and Brent Waters. Attribute-based encryption for
+                    fine-grained access control of encrypted data. In ACM Conference on Computer and Communications
+                    Security, pages 89–98, 2006.</li>
+                <li>[8] John Bethencourt, Amit Sahai, and Brent Waters. Ciphertext-policy attribute-based encryption.
+                    In IEEE Symposium on Security and Privacy, pages 321–334, 2007.</li>
+                <li>[9] Dan Boneh, Giovanni Di Crescenzo, Rafail Ostrovsky, and Giuseppe Persiano. Public key
+                    encryption with keyword search. In EUROCRYPT, pages 506–522, 2004.</li>
+                <li>[10] Jonathan Katz, Amit Sahai, and Brent Waters. Predicate encryption supporting disjunctions,
+                    polynomial equations, and inner products. In EUROCRYPT, pages 146–162, 2008.</li>
+            </ul>
         </p>
 
         <h3>
