@@ -1,5 +1,5 @@
-# cbc
-content-based crytpography library based on functional encryption and signature primitives:
+# forte
+a simple and strong cryptography and security library. 
 
 # Supported primitives
 - RSA (CCA-secure OAESP padding in RO model)
