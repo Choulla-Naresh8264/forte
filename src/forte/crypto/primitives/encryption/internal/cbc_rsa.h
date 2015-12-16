@@ -1,7 +1,7 @@
 #ifndef libcbc_encrypter_rsa_h
 #define libcbc_encrypter_rsa_h
 
-#include <cbc/string/cbc_string.h>
+#include "forte_string.h"
 
 struct cbc_encryption_scheme_rsa;
 typedef struct cbc_encryption_scheme_rsa RSAEncryptionScheme;
@@ -22,7 +22,7 @@ RSAParameters *rsaGetParameters(RSAEncryptionScheme *scheme);
 RSAMasterKey *rsaGetMasterKey(RSAEncryptionScheme *scheme);
 RSAPublicIndex *rsaCreatePublicIndex(RSAEncryptionScheme *scheme);
 RSASecretKey *rsaKeyGen(RSAEncryptionScheme *scheme);
-RSACiphertext *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCString *input);
-CBCString *rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload);
+RSACiphertext *rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const ForteString *input);
+ForteString *rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload);
 
 #endif // libcbc_encrypter_rsa_h

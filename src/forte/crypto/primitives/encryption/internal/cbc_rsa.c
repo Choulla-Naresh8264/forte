@@ -1,6 +1,6 @@
-#include <cbc/crypto/primitives/encryption/cbc_encrypter.h>
-#include <cbc/crypto/primitives/encryption/internal/cbc_rsa.h>
-#include <cbc/crypto/string/cbc_string.h>
+#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
+#include <forte/crypto/primitives/encryption/internal/cbc_rsa.h>
+#include <forte/string/forte_string.h>
 
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
@@ -20,8 +20,8 @@ struct cbc_public_index_rsa {
     RSA *publicRSA;
 };
 struct cbc_ciphertext_rsa {
-    CBCString *keyBlob;
-    CBCString *dataBlob;
+    ForteString *keyBlob;
+    ForteString *dataBlob;
     uint8_t *iv;
 };
 
@@ -107,14 +107,14 @@ rsaKeyGen(RSAEncryptionScheme *scheme)
 }
 
 RSACiphertext *
-rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCString *input)
+rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const ForteString *input)
 {
     RSACiphertext *ct = (RSACiphertext *) malloc(sizeof(RSACiphertext));
 
     size_t size = RSA_size(params->publicRSA) / 2;
 
     // Create the symmetric key to be encrypted by RSA
-    ct->keyBlob = (CBCString *) malloc(sizeof(CBCString));
+    ct->keyBlob = (ForteString *) malloc(sizeof(ForteString));
     uint8_t *symmetricKey = (uint8_t *) malloc(size);
     ct->keyBlob->payload = (uint8_t *) malloc(size * 2);
     ct->iv = (uint8_t *) malloc(size);
@@ -130,10 +130,10 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCSt
     }
 
     // encrypt the input with the symmetric key and IV
-    CBCString *ciphertext = encrypt(input, symmetricKey, ct->iv);
+    ForteString *ciphertext = encrypt(input, symmetricKey, ct->iv);
 
     // Allocate space for the ciphertext and store it
-    ct->dataBlob = (CBCString *) malloc(sizeof(CBCString));
+    ct->dataBlob = (ForteString *) malloc(sizeof(ForteString));
     ct->dataBlob->length = ciphertext->length;
     ct->dataBlob->payload = (uint8_t *) malloc(ciphertext->length);
     memcpy(ct->dataBlob->payload, ciphertext->payload, ciphertext->length);
@@ -151,10 +151,10 @@ rsaEncrypt(RSAEncryptionScheme *scheme, const RSAParameters *params, const CBCSt
     return ct;
 }
 
-CBCString *
+ForteString *
 rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *payload)
 {
-    CBCString *pt = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *pt = (ForteString *) malloc(sizeof(ForteString));
 
     size_t size = RSA_size(sk->privateRSA) / 2;
     pt->length = size;
@@ -170,7 +170,7 @@ rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *p
         return NULL;
     }
 
-    CBCString *plaintext = decrypt(payload->dataBlob, key, payload->iv);
+    ForteString *plaintext = decrypt(payload->dataBlob, key, payload->iv);
 
     return plaintext;
 }

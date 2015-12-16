@@ -1,7 +1,7 @@
 CC=gcc
 FLAGS=-Wall -std=c99
 EXTERNALLIBRARIES=-L /usr/local/lib/ -lcrypto -lssl -lpbc -lgmp
-EXTERNALINCLUDES=-I /usr/local/include/pbc/
+EXTERNALINCLUDES=-I /usr/local/include/
 
 all:
 	$(CC) $(FLAGS) -c cbc_bebgw.c $(EXTERNALINCLUDES) $(EXTERNALLIBRARIES)

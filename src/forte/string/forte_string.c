@@ -1,34 +1,34 @@
-#include <cbc/string/cbc_string.h>
+#include "forte_string.h"
 
-struct cbc_string {
+struct forte_string {
     uint8_t *payload;
     size_t length;
 };
 
-CBCString *
-cbcString_Create(size_t length)
+ForteString *
+forteString_Create(size_t length)
 {
-    CBCString *blob = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *blob = (ForteString *) malloc(sizeof(ForteString));
     blob->length = length;
     blob->payload = (uint8_t *) malloc(length);
     memset(blob->payload, 0, length);
     return blob;
 }
 
-CBCString *
-cbcString_CreateFromArray(size_t length, uint8_t input[length])
+ForteString *
+forteString_CreateFromArray(size_t length, uint8_t *input)
 {
-    CBCString *blob = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *blob = (ForteString *) malloc(sizeof(ForteString));
     blob->length = length;
     blob->payload = (uint8_t *) malloc(length);
     memcpy(blob->payload, input, length);
     return blob;
 }
 
-CBCString *
-cbcString_Copy(CBCString *original)
+ForteString *
+forteString_Copy(ForteString *original)
 {
-    CBCString *copy = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *copy = (ForteString *) malloc(sizeof(ForteString));
     copy->length = original->length;
     copy->payload = (uint8_t *) malloc(original->length);
     memcpy(copy->payload, original->payload, original->length);
@@ -36,54 +36,54 @@ cbcString_Copy(CBCString *original)
 }
 
 size_t
-cbcString_Length(CBCString *string)
+forteString_Length(ForteString *string)
 {
     return string->length;
 }
 
 uint8_t *
-cbcString_Array(CBCString *string)
+forteString_Array(ForteString *string)
 {
     return string->payload;
 }
 
-CBCString *
-cbcString_XOR(CBCString *x, CBCXstring *y)
+ForteString *
+forteString_XOR(ForteString *x, CBCXstring *y)
 {
     if (x->length != y->length) {
         return NULL;
     }
 
-    CBCString *z = cbcString_Create();
+    ForteString *z = forteString_Create();
     for (size_t i = 0; i < x->length; i++) {
         z->payload[i] = x->payload[i] ^ y->payload[i];
     }
 }
 
-CBCString *
-cbcString_AND(CBCString *x, CBCXstring *y)
+ForteString *
+forteString_AND(ForteString *x, CBCXstring *y)
 {
     if (x->length != y->length) {
         return NULL;
     }
 
-    CBCString *z = cbcString_Create();
+    ForteString *z = forteString_Create();
     for (size_t i = 0; i < x->length; i++) {
         z->payload[i] = x->payload[i] & y->payload[i];
     }
 }
 
-CBCString *
-cbcString_NOT(CBCString *x)
+ForteString *
+forteString_NOT(ForteString *x)
 {
-    CBCString *string = cbcString_Copy(x);
+    ForteString *string = forteString_Copy(x);
     for (size_t i = 0; i < string->length; i++) {
         string->payload[i] = ~string->payload[i];
     }
 }
 
 void
-cbcString_Fprint(CBCString *string, FILE *out)
+forteString_Fprint(ForteString *string, FILE *out)
 {
     for (size_t i = 0; i < x->length; i++) {
         fprintf("%2x", x->payload[i], out);
@@ -91,8 +91,8 @@ cbcString_Fprint(CBCString *string, FILE *out)
 }
 
 void
-cbcString_Fprintln(CBCString *string, FILE *out)
+forteString_Fprintln(ForteString *string, FILE *out)
 {
-    cbcString_Fprint(string, out);
+    forteString_Fprint(string, out);
     fprintf("\n", out);
 }

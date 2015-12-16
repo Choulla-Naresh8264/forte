@@ -1,5 +1,5 @@
-#include <cbc/crypto/primitives/encryption/cbc_encrypter.h>
-#include <cbc/crypto/string/cbc_string.h>
+#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
+#include <forte/string/forte_string.h>
 
 #include <openssl/pem.h>
 #include <openssl/rand.h>
@@ -26,8 +26,8 @@ struct cbc_encryption_scheme {
 };
 
 
-CBCString *
-encrypt(CBCString *input, uint8_t *key, uint8_t *iv)
+ForteString *
+encrypt(ForteString *input, uint8_t *key, uint8_t *iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
@@ -43,7 +43,7 @@ encrypt(CBCString *input, uint8_t *key, uint8_t *iv)
 
     int len;
     int ciphertext_len;
-    CBCString *ciphertext = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *ciphertext = (ForteString *) malloc(sizeof(ForteString));
     ciphertext->payload = (uint8_t *) malloc(input->length + 16);
 
     result = EVP_EncryptUpdate(ctx, ciphertext->payload, &len, input->payload, input->length);
@@ -65,8 +65,8 @@ encrypt(CBCString *input, uint8_t *key, uint8_t *iv)
     return ciphertext;
 }
 
-CBCString *
-decrypt(CBCString *ciphertext, uint8_t *key, uint8_t *iv)
+ForteString *
+decrypt(ForteString *ciphertext, uint8_t *key, uint8_t *iv)
 {
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
@@ -80,7 +80,7 @@ decrypt(CBCString *ciphertext, uint8_t *key, uint8_t *iv)
         return NULL;
     }
 
-    CBCString *plaintext = (CBCString *) malloc(sizeof(CBCString));
+    ForteString *plaintext = (ForteString *) malloc(sizeof(ForteString));
     plaintext->payload = (uint8_t *) malloc(ciphertext->length);
 
     int len;
@@ -167,12 +167,12 @@ cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey,
 }
 
 CBCCiphertext *
-cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCString *input, const void *metadata)
+cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const ForteString *input, const void *metadata)
 {
     return (scheme->interface->Encrypt(scheme->instance, params->instance, input, metadata));
 }
 
-CBCString *
+ForteString *
 cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *encryptedPayload)
 {
     return (scheme->interface->Decrypt(scheme->instance, secretKey->instance, encryptedPayload->instance));

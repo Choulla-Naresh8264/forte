@@ -5,9 +5,9 @@
 
 #include <pbc.h>
 
-#include <cbc/crypto/primitives/encryption/cbc_encrypter.h>
-#include <cbc/crypto/primitives/encryption/internal/cbc_bebgw.h>
-#include <cbc/crypto/string/cbc_string.h>
+#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
+#include <forte/crypto/primitives/encryption/internal/cbc_bebgw.h>
+#include <forte/string/forte_string.h>
 
 // BE containers
 struct cbc_parameters_bebgw {
@@ -40,8 +40,8 @@ struct cbc_ciphertext_bebgw {
     size_t numMembers;
 
     // The actual encrypted data
-    CBCString *payload;
-    CBCString *iv;
+    ForteString *payload;
+    ForteString *iv;
 };
 
 struct cbc_encryption_scheme_bebgw {
@@ -176,7 +176,7 @@ bebgwKeyGen(BEBGWEncryptionScheme *scheme, int index)
 }
 
 BEBGWCiphertext *
-bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, CBCString *input)
+bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipientSet, size_t setLength, ForteString *input)
 {
     element_t encryptionProduct;
     element_init(encryptionProduct, params->pairing->G1);
@@ -248,7 +248,7 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
     memset(symmetricKey, 0, 32);
     memcpy(symmetricKey, keyBytes, 32); // we require a 256-bit key
 
-    ct->iv = (CBCString *) malloc(sizeof(CBCString));
+    ct->iv = (ForteString *) malloc(sizeof(ForteString));
     ct->iv->length = 16;
     ct->iv->payload = (uint8_t *) malloc(ct->iv->length);
     result = RAND_bytes(ct->iv->payload, ct->iv->length);
@@ -263,7 +263,7 @@ bebgwEncrypt(BEBGWEncryptionScheme *scheme, BEBGWParameters *params, int *recipi
     return ct;
 }
 
-CBCString *
+ForteString *
 bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphertext)
 {
     element_t decryptionProduct;
@@ -333,7 +333,7 @@ bebgwDecrypt(BEBGWParameters *params, BEBGWSecretKey *sk, BEBGWCiphertext *ciphe
     memcpy(symmetricKey, keyBytes, 32);
 
     // encrypt the input with the symmetric key and IV
-    CBCString *plaintext = decrypt(ciphertext->payload, symmetricKey, ciphertext->iv->payload);
+    ForteString *plaintext = decrypt(ciphertext->payload, symmetricKey, ciphertext->iv->payload);
 
     return plaintext;
 }

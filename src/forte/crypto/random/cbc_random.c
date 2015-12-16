@@ -3,7 +3,7 @@
 CBCString *
 cbcRandom_GetRandomBytes(size_t numBytes)
 {
-    CBCString *string = cbcString_Create(numBytes);
+    CBCString *string = forteString_Create(numBytes);
 
     // TODO: populate the payload with bytes
 

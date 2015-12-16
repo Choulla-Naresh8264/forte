@@ -1,6 +1,8 @@
 #ifndef libcbc_encrypter_h
 #define libcbc_encrypter_h
 
+#include "forte_string.h"
+
 struct cbc_encryption_scheme;
 typedef struct cbc_encryption_scheme CBCEncryptionScheme;
 
@@ -24,8 +26,8 @@ typedef struct cbc_public_index CBCPublicIndex;
 typedef struct cbc_ciphertext CBCCiphertext;
 
 // TODO: rename these functions
-CBCString *encrypt(CBCString *input, uint8_t *key, uint8_t *iv);
-CBCString *decrypt(CBCString *ciphertext, uint8_t *key, uint8_t *iv);
+ForteString *encrypt(ForteString *input, uint8_t *key, uint8_t *iv);
+ForteString *decrypt(ForteString *ciphertext, uint8_t *key, uint8_t *iv);
 
 CBCParameters *cbcParameters_Create(void *instance);
 CBCMasterKey *cbcMasterKey_Create(void *instance);
@@ -36,7 +38,7 @@ CBCPublicIndex *cbcPublicIndex_Create(void *instance);
 CBCEncryptionScheme *cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface);
 CBCMasterKey *cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters);
 CBCSecretKey *cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index);
-CBCCiphertext *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const CBCString *plaintext, const void *metadata);
-CBCString *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *ciphertext);
+CBCCiphertext *cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const ForteString *plaintext, const void *metadata);
+ForteString *cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *ciphertext);
 
 #endif // libcbc_encrypter_h
