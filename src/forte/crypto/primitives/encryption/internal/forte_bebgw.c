@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include <pbc.h>
 
-#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
-#include <forte/crypto/primitives/encryption/internal/cbc_bebgw.h>
-#include <forte/string/forte_string.h>
+#include "forte_encrypter.h"
+#include "forte_bebgw.h"
 
 // BE containers
 struct cbc_parameters_bebgw {
@@ -349,7 +347,7 @@ bebgwCreate(size_t groupSize, char *pairFileName)
     return scheme;
 }
 
-CBCEncryptionSchemeInterface *CBCEncryptionSchemeBEBGW = &(CBCEncryptionSchemeInterface) {
+ForteEncryptorInterface *CBCEncryptionSchemeBEBGW = &(ForteEncryptorInterface) {
     .GenerateMasterKey = (void * (*)(void *scheme, const void *)) bebgwCreateMasterKey,
     .GeneratePrivateKey = (void * (*)(void *scheme, const void *, const void *)) bebgwKeyGen,
     .Encrypt = (void * (*)(void *scheme, const void *, const void *)) bebgwEncrypt,

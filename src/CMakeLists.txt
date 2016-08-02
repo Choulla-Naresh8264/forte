@@ -25,7 +25,7 @@ set(forte_SOURCES
         ${CMAKE_SOURCE_DIR}/forte/crypto/primitives/encryption/internal/cbc_dummy.c
         ${CMAKE_SOURCE_DIR}/forte/crypto/primitives/encryption/internal/cbc_rsa.c
         ${CMAKE_SOURCE_DIR}/forte/string/forte_string.c
-    )
+        forte/crypto/primitives/hashing/forte_Hasher.c forte/crypto/primitives/hashing/forte_Hasher.h forte/crypto/primitives/encryption/internal/forte_aes.c forte/crypto/primitives/encryption/internal/forte_aes.h)
 
 link_directories(
     /usr/local/lib

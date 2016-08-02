@@ -1,41 +1,43 @@
-#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
+#include <forte/crypto/primitives/encryption/forte_encrypter.h>
 #include <forte/string/forte_string.h>
 
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
-struct cbc_parameters {
+struct forte_parameters {
     void *instance;
 };
-struct cbc_master_key {
+struct forte_master_key {
     void *instance;
 };
-struct cbc_secret_key {
+struct forte_secret_key {
     void *instance;
 };
-struct cbc_public_index {
+struct forte_public_index {
     void *instance;
 };
-struct cbc_ciphertext {
+struct forte_ciphertext {
     void *instance;
 };
 
-struct cbc_encryption_scheme {
+struct forte_encryption_scheme {
     void *instance;
-    const CBCEncryptionSchemeInterface *interface;
+    const ForteEncryptorInterface *interface;
 };
 
 
 ForteString *
 encrypt(ForteString *input, uint8_t *key, uint8_t *iv)
 {
+    // TODO: run the AES encryption algorithm
+
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         // TODO: throw exception
         return NULL;
     }
 
-    int result = EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
+    int result = EVP_EncryptInit_ex(ctx, EVP_aes_256_forteEncryption(), NULL, key, iv);
     if (result != 1) {
         // TODO: throw exception
         return NULL;
@@ -68,13 +70,16 @@ encrypt(ForteString *input, uint8_t *key, uint8_t *iv)
 ForteString *
 decrypt(ForteString *ciphertext, uint8_t *key, uint8_t *iv)
 {
+    // TODO: run the decryption algorithm.
+
+
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         // TODO: throw exception
         return NULL;
     }
 
-    int result = EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv);
+    int result = EVP_DecryptInit_ex(ctx, EVP_aes_256_forteEncryption(), NULL, key, iv);
     if (result != 1) {
         // TODO;
         return NULL;
@@ -105,75 +110,75 @@ decrypt(ForteString *ciphertext, uint8_t *key, uint8_t *iv)
     return plaintext;
 }
 
-CBCEncryptionScheme *
-cbcEncryptionScheme(void *instance, CBCEncryptionSchemeInterface *interface)
+ForteEncryptionScheme *
+forteEncryptionScheme(void *instance, ForteEncryptorInterface *interface)
 {
-    CBCEncryptionScheme *scheme = (CBCEncryptionScheme *) malloc(sizeof(CBCEncryptionScheme));
+    ForteEncryptionScheme *scheme = (ForteEncryptionScheme *) malloc(sizeof(ForteEncryptionScheme));
     scheme->instance = instance;
     scheme->interface = interface;
     return scheme;
 }
 
-CBCParameters *
-cbcParameters_Create(void *instance)
+ForteEncryptionParameters *
+forteEncryptionParameters_Create(void *instance)
 {
-    CBCParameters *params = (CBCParameters *) malloc(sizeof(CBCParameters));
+    ForteEncryptionParameters *params = (ForteEncryptionParameters *) malloc(sizeof(ForteEncryptionParameters));
     params->instance = instance;
     return params;
 }
 
-CBCMasterKey *
-cbcMasterKey_Create(void *instance)
+ForteEncryptionMasterKey *
+forteEncryptionMasterKey_Create(void *instance)
 {
-    CBCMasterKey *msk = (CBCMasterKey *) malloc(sizeof(CBCMasterKey));
+    ForteEncryptionMasterKey *msk = (ForteEncryptionMasterKey *) malloc(sizeof(ForteEncryptionMasterKey));
     msk->instance = instance;
     return msk;
 }
 
-CBCSecretKey *
-cbcSecretKey_Create(void *instance)
+ForteEncryptionSecretKey *
+forteEncryptionSecretKey_Create(void *instance)
 {
-    CBCSecretKey *sk = (CBCSecretKey *) malloc(sizeof(CBCSecretKey));
+    ForteEncryptionSecretKey *sk = (ForteEncryptionSecretKey *) malloc(sizeof(ForteEncryptionSecretKey));
     sk->instance = instance;
     return sk;
 }
 
-CBCCiphertext *
-cbcCiphertext_Create(void *instance)
+ForteEncryptionCiphertext *
+forteEncryptionCiphertext_Create(void *instance)
 {
-    CBCCiphertext *payload = (CBCCiphertext *) malloc(sizeof(CBCCiphertext));
+    ForteEncryptionCiphertext *payload = (ForteEncryptionCiphertext *) malloc(sizeof(ForteEncryptionCiphertext));
     payload->instance = instance;
     return payload;
 }
 
-CBCPublicIndex *
-cbcPublicIndex_Create(void *instance)
+ForteEncryptionPublicIndex *
+forteEncryptionPublicIndex_Create(void *instance)
 {
-    CBCPublicIndex *index = (CBCPublicIndex *) malloc(sizeof(CBCPublicIndex));
+    ForteEncryptionPublicIndex *index = (ForteEncryptionPublicIndex *) malloc(sizeof(ForteEncryptionPublicIndex));
     index->instance = instance;
     return index;
 }
 
-CBCMasterKey *
-cbcGenerateMasterKey(CBCEncryptionScheme *scheme, const CBCParameters *parameters)
+ForteEncryptionMasterKey *
+forteEncryptionGenerateMasterKey(ForteEncryptionScheme *scheme, const ForteEncryptionParameters *parameters)
 {
     return (scheme->interface->GenerateMasterKey(scheme->instance, parameters->instance));
 }
 
-CBCSecretKey *
-cbcGenerateSecretKey(CBCEncryptionScheme *scheme, const CBCMasterKey *masterKey, const CBCPublicIndex *index)
+ForteEncryptionSecretKey *
+forteEncryptionGenerateSecretKey(ForteEncryptionScheme *scheme, const ForteEncryptionMasterKey *masterKey, const ForteEncryptionPublicIndex *index)
 {
     return (scheme->interface->GeneratePrivateKey(scheme->instance, masterKey->instance, index->instance));
 }
 
-CBCCiphertext *
-cbcEncrypt(CBCEncryptionScheme *scheme, const CBCParameters *params, const ForteString *input, const void *metadata)
+ForteEncryptionCiphertext *
+forteEncryptionEncrypt(ForteEncryptionScheme *scheme, const ForteEncryptionParameters *params, const ForteString *input, const void *metadata)
 {
     return (scheme->interface->Encrypt(scheme->instance, params->instance, input, metadata));
 }
 
 ForteString *
-cbcDecrypt(CBCEncryptionScheme *scheme, const CBCSecretKey *secretKey, const CBCCiphertext *encryptedPayload)
+forteEncryptionDecrypt(ForteEncryptionScheme *scheme, const ForteEncryptionSecretKey *secretKey, const ForteEncryptionCiphertext *encryptedPayload)
 {
     return (scheme->interface->Decrypt(scheme->instance, secretKey->instance, encryptedPayload->instance));
 }

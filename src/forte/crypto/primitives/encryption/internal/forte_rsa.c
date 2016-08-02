@@ -1,5 +1,5 @@
-#include <forte/crypto/primitives/encryption/cbc_encrypter.h>
-#include <forte/crypto/primitives/encryption/internal/cbc_rsa.h>
+#include "forte_encrypter.h"
+#include "forte_rsa.h"
 #include <forte/string/forte_string.h>
 
 #include <openssl/rsa.h>
@@ -175,7 +175,7 @@ rsaDecrypt(RSAParameters *params, const RSASecretKey *sk, const RSACiphertext *p
     return plaintext;
 }
 
-CBCEncryptionSchemeInterface *CBCEncryptionSchemeRSA = &(CBCEncryptionSchemeInterface) {
+ForteEncryptorInterface *CBCEncryptionSchemeRSA = &(ForteEncryptorInterface) {
     .GenerateMasterKey = (void * (*)(void *scheme, const void *)) rsaCreateMasterKey,
     .GeneratePrivateKey = (void * (*)(void *scheme, const void *, const void *)) rsaKeyGen,
     .Encrypt = (void * (*)(void *scheme, const void *, const void *)) rsaEncrypt,
