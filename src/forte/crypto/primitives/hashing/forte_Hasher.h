@@ -1,10 +1,12 @@
-//
-// Created by cwood on 12/15/15.
-//
+#ifndef libcbc_Hasher_h_
+#define libcbc_Hasher_h_
 
-#ifndef LIBFORTE_FORTE_HASHER_H
-#define LIBFORTE_FORTE_HASHER_H
+#include <cbc/string/cbc_string.h>
+#include <cbc/crypto/primitives/hashing/cbc_HasherTypes.h>
 
-// TODO: implement this generic interface.
+struct cbc_hasher;
+typedef struct cbc_hasher CBCHasher;
 
-#endif //LIBFORTE_FORTE_HASHER_H
+CBCHasher *cbcHasher_Create(CBCHasherType type);
+
+#endif // libcbc_Hasher_h_

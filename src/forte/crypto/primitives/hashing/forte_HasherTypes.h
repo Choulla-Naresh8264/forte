@@ -1,9 +1,10 @@
-#ifndef LIBFORTE_FORTE_HASHERTYPE_H
-#define LIBFORTE_FORTE_HASHERTYPE_H
+#ifndef libcbc_HasherType_h_
+#define libcbc_HasherType_h_
 
 typedef enum {
-    ForteHasherType_SHA256,
-    ForteHasherType_SHA512
-} ForteHasherType;
+    CBCHasherType_SHA256,
+    CBCHasherType_SHA512,
+    CBCHasherType_SHA3
+} CBCHasherType;
 
-#endif // LIBFORTE_FORTE_HASHERTYPE_H
+#endif // libcbc_HasherType_h_
